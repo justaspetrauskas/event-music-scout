@@ -39,11 +39,13 @@
 </template>
 
 <script lang="ts" setup>
-import BackgroundEffect from "~/components/UI/BackgroundEffect.vue"
-import type { EventData } from "../../types"
+import BackgroundEffect from "@/components/UI/BackgroundEffect.vue"
+import type { EventData } from "@@/types"
 
 const { analyzeEvent, loading } = useEventAnalyzer()
 const { selectedArtists, toggleArtist, toggleSelectAll } = usePlaylist()
+const { getRedirectToAuthCodeFlow } = useSpotifyOAuthMethods()
+
 const route = useRoute()
 const router = useRouter()
 
@@ -76,8 +78,27 @@ const handlePlayAll = () => {
 	}
 }
 
+const handleOpenSpotifyOAuthWindow = async () => {
+	const url = await getRedirectToAuthCodeFlow()
+
+	const windowFeatures = "width=800,height=600,left=100,top=100"
+
+	const authWindow = window.open(url, "_blank", windowFeatures)
+	if (authWindow) {
+		const handleMessage = (event: MessageEvent) => {
+			if (event.origin === "http://[::1]:3000") {
+				console.log("receives a message from port", event)
+			}
+		}
+
+		window.addEventListener("message", handleMessage)
+	}
+}
+
 const handleCreatePlaylist = () => {
 	if (!eventData.value || selectedArtists.value.size === 0) return
+
+	handleOpenSpotifyOAuthWindow()
 }
 
 const handleToggleSelectAll = () => {

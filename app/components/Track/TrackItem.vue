@@ -29,8 +29,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { Track } from "../../../types"
-import PlayButton from "../UI/PlayButton.vue"
+import type { Track } from "@@/types"
+import PlayButton from "@/UI/PlayButton.vue"
 
 const { msToMinutesSeconds } = useUseUtilMethods()
 

@@ -1,4 +1,4 @@
-import type { EventData } from "../../types"
+import type { EventData } from "@@/types"
 
 export const usePlaylist = () => {
 	const selectedArtists = ref<Set<string>>(new Set())

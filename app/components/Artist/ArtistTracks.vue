@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Track } from "../../../types"
+import type { Track } from "@@/types"
 
 defineProps<{
 	tracks: Track[]

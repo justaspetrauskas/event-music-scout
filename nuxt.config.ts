@@ -14,8 +14,13 @@ export default defineNuxtConfig({
 		spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
 		spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 		public: {
-			spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI || "http://localhost:3000/callback",
+			spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI || "http://127.0.0.1:3000",
+			spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
 		},
+	},
+	devServer: {
+		host: "::1",
+		port: 3000, // because of spotify new rules
 	},
 	compatibilityDate: "2025-07-15",
 	eslint: {

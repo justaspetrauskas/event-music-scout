@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Artist } from "../../../types"
+import type { Artist } from "@@/types"
 
 defineProps<{
 	artist: Artist
