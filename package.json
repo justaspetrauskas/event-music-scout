@@ -1,0 +1,33 @@
+{
+  "name": "event-music-scout",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.67.0",
+    "@nuxt/eslint": "^1.9.0",
+    "@nuxt/icon": "^2.1.0",
+    "@picocss/pico": "^2.1.1",
+    "@pinia/nuxt": "^0.11.2",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.38.0",
+    "fuse.js": "^7.1.0",
+    "nuxt": "^4.2.0",
+    "pinia": "^3.0.3",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "playwright": "^1.56.1",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1"
+  }
+}
