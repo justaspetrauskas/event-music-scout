@@ -10,9 +10,9 @@
 		</div>
 
 		<div class="relative w-full">
-			<div class="flex items-center gap-3 bg-card border border-border overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-green-500/50">
+			<div class="flex items-center gap-3 bg-card border border-border overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-spotify/50">
 				<Link
-					class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground text-green-500 dark:text-green-400"
+					class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground text-spotify text-green-400"
 				/>
 
 				<input
@@ -24,11 +24,13 @@
 				>
 
 				<button
-					class="px-6 py-4 border-l border-green-500 bg-accent text-green-500
-  hover:bg-green-500 hover:text-white hover:shadow-lg hover:shadow-green-500/30
-  hover:border-green-400 rounded-r-lg font-medium transition-all duration-300
-  ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap group
-  disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+					class="px-6 py-4 border-l border-spotify bg-accent text-spotify
+  					rounded-r-lg font-medium transition-all duration-300
+  					ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap
+  					disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
+ 					hover:bg-spotify hover:text-white hover:shadow-lg hover:shadow-spotify
+  					hover:border-green-400
+  					"
 					:aria-busy="loading"
 					:disabled="loading"
 					@click="handleAnalyze"

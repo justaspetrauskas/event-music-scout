@@ -10,7 +10,7 @@
 			>
 				<button
 					v-if="isLoggedIn"
-					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 dark:text-gray-200 pr-4
+					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 pr-4
         cursor-pointer p-0"
 					@click="showDropdown = !showDropdown"
 				>
@@ -20,14 +20,14 @@
 						class="w-10 h-auto rounded-full object-cover"
 					>
 					<ChevronDown
-						class="w-4 h-4 transition-all text-gray-800 dark:text-gray-200"
+						class="w-4 h-4 transition-all"
 						:class="{ 'rotate-180': showDropdown }"
 					/>
 				</button>
 
 				<button
 					v-else
-					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 dark:text-gray-200 pr-4
+					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 pr-4
         cursor-pointer p-0"
 					@click="login()"
 				>
@@ -42,8 +42,8 @@
 
 			<!-- Dropdown -->
 			<div
-				v-show="showDropdown"
-				class="absolute top-full right-0 mt-2 w-full bg-card border border-border rounded-xl shadow-xl py-2 z-50 dark:text-gray-200 z-50"
+				v-if="showDropdown"
+				class="absolute top-full right-0 mt-2 w-full bg-card border border-border rounded-xl shadow-xl py-2 z-50"
 				@click.outside="showDropdown = false"
 			>
 				<button
