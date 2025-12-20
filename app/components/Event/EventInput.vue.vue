@@ -10,13 +10,11 @@
 		</div>
 
 		<div class="relative w-full">
-			<div class="flex items-center gap-3 bg-card border border-border rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-green-500/50">
-				<!-- Link icon -->
+			<div class="flex items-center gap-3 bg-card border border-border overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-green-500/50">
 				<Link
 					class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground text-green-500 dark:text-green-400"
 				/>
 
-				<!-- Input -->
 				<input
 					v-model="eventUrl"
 					type="text"
@@ -25,14 +23,19 @@
 					@keyup.enter="handleAnalyze"
 				>
 
-				<!-- Analyze button -->
 				<button
-					class="px-6 py-4 border-l border-green-500 bg-accent text-green-500 hover:bg-accent/90 rounded-r-lg font-medium transition-all duration-200 whitespace-nowrap"
+					class="px-6 py-4 border-l border-green-500 bg-accent text-green-500
+  hover:bg-green-500 hover:text-white hover:shadow-lg hover:shadow-green-500/30
+  hover:border-green-400 rounded-r-lg font-medium transition-all duration-300
+  ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap group
+  disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
 					:aria-busy="loading"
 					:disabled="loading"
 					@click="handleAnalyze"
 				>
-					{{ loading ? 'Analyzing...' : 'Analyze Event' }}
+					<span class="group-hover:scale-105 transition-transform duration-200">
+						{{ loading ? 'Analyzing...' : 'Analyze Event' }}
+					</span>
 				</button>
 			</div>
 			<!-- Error message -->

@@ -1,39 +1,49 @@
 <template>
 	<div class="flex items-center justify-center">
-		<!-- Logged In: Dual circles avatar -->
 		<div
-			v-if="isLoggedIn"
 			class="relative"
 		>
-			<!-- Outer glow circle -->
 			<div
 				class="w-full h-11 rounded-full bg-none border-border/50 border-2 shadow-lg hover:shadow-xl inset-0 z-0 overflow-hidden gap-4
         dark:shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:dark:shadow-[0_0_30px_rgba(59,130,246,0.6)]
         transition-all duration-300"
 			>
-				<!-- Inner avatar button -->
 				<button
-					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 dark:text-gray-200
+					v-if="isLoggedIn"
+					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 dark:text-gray-200 pr-4
         cursor-pointer p-0"
 					@click="showDropdown = !showDropdown"
 				>
 					<img
-						:src="user!.images[1]?.url || '/default-avatar.png'"
+						:src="user!.images[1]?.url"
 						alt="Spotify Avatar"
 						class="w-10 h-auto rounded-full object-cover"
 					>
-					<span>{{ user!.display_name }}</span>
 					<ChevronDown
-						class="w-4 h-4 transition-all text-gray-800 dark:text-gray-200 "
+						class="w-4 h-4 transition-all text-gray-800 dark:text-gray-200"
 						:class="{ 'rotate-180': showDropdown }"
 					/>
+				</button>
+
+				<button
+					v-else
+					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 dark:text-gray-200 pr-4
+        cursor-pointer p-0"
+					@click="login()"
+				>
+					<img
+						:src="spotifyIcon"
+						alt="Spotify"
+						class="w-10 h-auto rounded-full object-cover"
+					>
+					<span>Login with Spotify</span>
 				</button>
 			</div>
 
 			<!-- Dropdown -->
 			<div
 				v-show="showDropdown"
-				class="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-2xl py-2 z-50 dark:text-gray-200"
+				class="absolute top-full right-0 mt-2 w-full bg-card border border-border rounded-xl shadow-xl py-2 z-50 dark:text-gray-200 z-50"
 				@click.outside="showDropdown = false"
 			>
 				<button
@@ -41,31 +51,6 @@
 					@click="logout"
 				>
 					Logout
-				</button>
-			</div>
-		</div>
-
-		<!-- Logged Out: Dual circles Spotify -->
-		<div
-			v-else
-			class="relative"
-		>
-			<!-- Outer Spotify glow -->
-			<div
-				class="w-11 h-11 rounded-full bg-green-500/20 border-2 border-green-400/50 shadow-lg hover:shadow-xl absolute inset-0 z-0
-        dark:shadow-[0_0_25px_rgba(34,197,94,0.5)] hover:dark:shadow-[0_0_35px_rgba(34,197,94,0.7)]
-        transition-all duration-300"
-			>
-				<!-- Inner Spotify button -->
-				<button
-					class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 hover:bg-green-600 border border-green-400/30 relative z-10 p-0"
-					@click="login()"
-				>
-					<img
-						:src="spotifyIcon"
-						alt="Spotify"
-						class="w-6 h-6"
-					>
 				</button>
 			</div>
 		</div>

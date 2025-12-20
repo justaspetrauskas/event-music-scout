@@ -1,5 +1,8 @@
 <template>
 	<button
+		type="button"
+		role="switch"
+		aria-label="Toggle light or dark mode"
 		class="w-10 h-10 flex items-center justify-center rounded-full p-3
   backdrop-blur-sm bg-white/80 border border-white/30 hover:border-white/50
   dark:backdrop-blur-sm dark:bg-black/20 dark:border-white/20 dark:hover:border-white/40
