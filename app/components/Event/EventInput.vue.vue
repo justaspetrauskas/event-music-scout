@@ -1,6 +1,8 @@
 <template>
 	<section class="max-w-2xl mx-auto min-h-screen flex items-center flex-col justify-center -translate-y-12">
-		<div class="py-8">
+		<div
+			class="py-8"
+		>
 			<h2 class="">
 				Event Music Scout
 			</h2>
@@ -24,13 +26,11 @@
 				>
 
 				<button
-					class="px-6 py-4 border-l border-spotify bg-accent text-spotify
-  					rounded-r-lg font-medium transition-all duration-300
-  					ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap
-  					disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
- 					hover:bg-spotify hover:text-white hover:shadow-lg hover:shadow-spotify
-  					hover:border-green-400
-  					"
+					class="px-6 py-4 border-l border-spotify bg-accent text-spotify	rounded-r-lg font-medium transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap
+					disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
+					hover:bg-spotify hover:text-white hover:shadow-lg hover:shadow-spotify
+					hover:border-green-400
+					"
 					:aria-busy="loading"
 					:disabled="loading"
 					@click="handleAnalyze"
@@ -54,6 +54,12 @@
 					Please enter a valid URL (e.g., https://example.com/event)
 				</p>
 			</span>
+		</div>
+		<div
+			v-if="loading"
+			class="mt-8"
+		>
+			show loader
 		</div>
 	</section>
 </template>

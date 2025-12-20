@@ -33,6 +33,7 @@
     "@nuxt/devtools": "^3.1.1",
     "@nuxt/devtools-nightly": "^3.1.1-29404851.4bbdfca",
     "@types/node": "^24.9.1",
-    "@types/spotify-web-playback-sdk": "^0.1.19"
+    "@types/spotify-web-playback-sdk": "^0.1.19",
+    "tailwindcss-animate": "^1.0.7"
   }
 }

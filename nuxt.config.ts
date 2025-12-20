@@ -6,6 +6,7 @@ export default defineNuxtConfig({
 		"@nuxt/devtools",
 		"@nuxtjs/tailwindcss",
 		"nuxt-lucide-icons",
+		"@nuxtjs/tailwindcss",
 		"@vueuse/motion/nuxt",
 	],
 	ssr: true,

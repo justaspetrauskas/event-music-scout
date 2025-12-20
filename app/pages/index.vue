@@ -34,7 +34,7 @@
 					:selected="selectedArtists.has(artist.id)"
 				/>
 			</section>
-			<MusicPlayer />
+			<!-- <MusicPlayer /> -->
 		</template>
 		<PlaylistFormModal
 			v-if="isPlaylistFormModalVisible"

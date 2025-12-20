@@ -28,7 +28,8 @@ function findBestMatch(items: Artist[], query: string, targetGenres: string[]): 
 	}
 
 	const exactMatch = genreMatches.find(artist =>
-		artist.name.toLowerCase().trim() === query.toLowerCase().trim(),
+
+		artist?.name?.toLowerCase().trim() === query.toLowerCase().trim(),
 	)
 	if (exactMatch) {
 		return exactMatch
