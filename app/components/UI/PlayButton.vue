@@ -1,14 +1,35 @@
 <template>
-	<div class="wrapper">
+	<div
+		class="wrapper"
+		:class="{ playing: isPlaying }"
+	>
 		<div class="circle pulse" />
 		<div class="circle">
 			<svg
 				:viewBox="`0 0 100 100`"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<polygon
-					points="40,30 74,50 40,70"
-				/>
+				<g v-if="!isPlaying">
+					<polygon
+						points="40,30 74,50 40,70"
+					/>
+				</g>
+				<g v-else>
+					<rect
+						x="35"
+						y="30"
+						width="12"
+						height="40"
+						rx="2"
+					/>
+					<rect
+						x="53"
+						y="30"
+						width="12"
+						height="40"
+						rx="2"
+					/>
+				</g>
 			</svg>
 		</div>
 	</div>
@@ -68,6 +89,11 @@ defineProps<{
   stroke: #99e699;
   transform: scale(1.2, 1.2);
   animation: pulse 2s infinite;
+}
+
+/* Activate existing pulse animation when playing */
+.wrapper.playing .circle.pulse {
+  animation: pulse 2s infinite ease-in-out;
 }
 
 @-webkit-keyframes pulse {

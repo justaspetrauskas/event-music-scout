@@ -6,7 +6,7 @@
 		<ArtistHeader
 			:artist="artist"
 			:selected="selected"
-			@toggle-select="emit('toggle-select', artist.id)"
+			@toggle-select="handleSelectArtist(artist)"
 		/>
 
 		<ArtistTracks
@@ -19,6 +19,11 @@
 
 <script lang="ts" setup>
 import type { Artist } from "@@/types"
+import { usePlaylistStore } from "~/stores/playlistStore"
+
+const playlistStore = usePlaylistStore()
+const { toggleArtist } = usePlaylistStore()
+const { getAllTrackUris } = storeToRefs(playlistStore)
 
 const props = defineProps<{
 	artist: Artist
@@ -30,8 +35,16 @@ const emit = defineEmits<{
 	"play-track": [trackId: string, artistName: string, trackName: string]
 }>()
 
-function handlePlayTrack(trackId: string, trackName: string) {
+const handlePlayTrack = (trackId: string, trackName: string) => {
 	emit("play-track", trackId, props.artist.name, trackName)
+}
+
+const handleSelectArtist = (artist: Artist) => {
+	// check if selecting or deselecting
+	toggleArtist(artist)
+	// const trackUris = artist.tracks.map(track => track.uri)
+	console.log("select artist", getAllTrackUris.value)
+	// emit("toggle-select", artist.id)
 }
 </script>
 

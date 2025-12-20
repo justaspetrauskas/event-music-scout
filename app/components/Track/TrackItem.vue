@@ -13,7 +13,7 @@
 		</button> -->
 		<PlayButton
 			:is-playing="isPlaying"
-			@click="emit('play')"
+			@click="handlePlayTrack"
 		/>
 
 		<div class="track-info">
@@ -29,23 +29,41 @@
 </template>
 
 <script lang="ts" setup>
-import type { Track } from "@@/types"
+import type { Track } from "~~/types"
 import PlayButton from "../UI/PlayButton.vue"
 
 const { msToMinutesSeconds } = useUseUtilMethods()
+const { playTrack } = useTrackPlaybackMethods()
+const musicPlayerStore = useMusicPlayerStore()
+const { togglePlayback } = musicPlayerStore
+const { currentTrack, isPaused } = storeToRefs(musicPlayerStore)
 
 const props = defineProps<{
 	track: Track
-	isPlaying: boolean
 }>()
 
 const emit = defineEmits<{
 	play: []
 }>()
 
+const isPlaying = computed(() => currentTrack.value && currentTrack.value?.id === props.track.id && !isPaused.value)
+
 const trackDuration = computed(() => {
 	return msToMinutesSeconds(+props.track.duration)
 })
+
+const handlePlayTrack = async () => {
+	if (!props.track.uri) return
+
+	const isCurrent = currentTrack.value?.uri === props.track.uri
+
+	if (isCurrent) {
+		togglePlayback()
+	}
+	else {
+		await playTrack([props.track.uri])
+	}
+}
 </script>
 
 <style>

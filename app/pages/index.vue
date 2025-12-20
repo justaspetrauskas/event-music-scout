@@ -1,19 +1,20 @@
 <template>
 	<div>
-		<BackgroundEffect />
-		<header>
-			<h1>Event Music Scout</h1>
-			<p class="subtle">
-				Discover the music vibe before you commit to the party
-			</p>
-		</header>
+		<!-- <BackgroundEffect /> -->
+
+		<!-- <div class="container header-container">
+				<h1>Event Music Scout</h1>
+				<p class="subtle">
+					Discover the music vibe before you commit to the party
+				</p>
+			</div> -->
+
 		<event-input-vue
 			v-model="urlToAnalyze"
 			:loading="loading"
 			@analyze="handleAnalyzeEvent"
 		/>
 		<!-- loading -->
-		<!-- Event data -->
 		<!-- empty state -->
 		<template v-if="eventData">
 			<EventControls
@@ -31,26 +32,38 @@
 					:key="artist.id"
 					:artist="artist"
 					:selected="selectedArtists.has(artist.id)"
-					@toggle-select="toggleArtist"
 				/>
 			</section>
+			<MusicPlayer />
 		</template>
+		<PlaylistFormModal
+			v-if="isPlaylistFormModalVisible"
+			@close-modal="onCloseModal()"
+		/>
 	</div>
 </template>
 
 <script lang="ts" setup>
 import BackgroundEffect from "@/components/UI/BackgroundEffect.vue"
-import type { EventData } from "@@/types"
+import PlaylistFormModal from "@/components/UI/PlaylistFormModal.vue"
+import MusicPlayer from "@/components/MusicPlayer/musicPlayerMain.vue"
+import type { EventData } from "~~/types"
+
+import { usePlaylistStore } from "~/stores/playlistStore"
+
+const playlistStore = usePlaylistStore()
+const { toggleSelectAll } = usePlaylistStore()
+const { selectedArtists } = storeToRefs(playlistStore)
 
 const { analyzeEvent, loading } = useEventAnalyzer()
-const { selectedArtists, toggleArtist, toggleSelectAll } = usePlaylist()
-const { getRedirectToAuthCodeFlow } = useSpotifyOAuthMethods()
+const { handleOpenSpotifyOAuthWindow, getAccessToken } = useSpotifyOAuthMethods()
 
 const route = useRoute()
 const router = useRouter()
 
 const eventData = ref<EventData | null>(null)
 const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
+const isPlaylistFormModalVisible = ref(false)
 
 const allArtistsSelected = computed(() => {
 	return eventData.value
@@ -78,27 +91,22 @@ const handlePlayAll = () => {
 	}
 }
 
-const handleOpenSpotifyOAuthWindow = async () => {
-	const url = await getRedirectToAuthCodeFlow()
-
-	const windowFeatures = "width=800,height=600,left=100,top=100"
-
-	const authWindow = window.open(url, "_blank", windowFeatures)
-	if (authWindow) {
-		const handleMessage = (event: MessageEvent) => {
-			if (event.origin === "http://[::1]:3000") {
-				console.log("receives a message from port", event)
-			}
-		}
-
-		window.addEventListener("message", handleMessage)
-	}
-}
-
-const handleCreatePlaylist = () => {
+const handleCreatePlaylist = async () => {
 	if (!eventData.value || selectedArtists.value.size === 0) return
 
+	const existingToken = await getAccessToken()
+	if (existingToken) {
+		console.log("Using cached access token")
+		// await createPlaylist(eventData.value, selectedArtists.value)
+		isPlaylistFormModalVisible.value = true
+		return existingToken
+	}
+
 	handleOpenSpotifyOAuthWindow()
+}
+
+const onCloseModal = () => {
+	isPlaylistFormModalVisible.value = false
 }
 
 const handleToggleSelectAll = () => {
@@ -116,5 +124,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+header {
+	display: flex;
+	align-items: flex-start;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.header-container {
+	flex: 1 1 auto;
 }
 </style>

@@ -6,6 +6,6 @@
 
 <style>
 /* Global styles loaded here */
-@import "@picocss/pico";
-@import "@@/assets/css/main.css";
+/* @import "@@/assets/css/main.css"; */
+@import "@@/assets/tailwind.css"
 </style>

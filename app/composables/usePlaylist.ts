@@ -1,20 +1,25 @@
-import type { EventData } from "@@/types"
+import type { AddTracksPayload, CreatePlaylistPayload, EventData } from "@@/types"
 
 export const usePlaylist = () => {
+	const userStore = useUserStore()
+	const { user } = storeToRefs(userStore)
+	const { getAccessToken } = useSpotifyOAuthMethods()
+
+	// Selected artists by id (for UI); optional if you later move this to Pinia store
 	const selectedArtists = ref<Set<string>>(new Set())
 
-	function toggleArtist(artistId: string) {
+	const toggleArtist = (artistId: string) => {
 		if (selectedArtists.value.has(artistId)) {
 			selectedArtists.value.delete(artistId)
 		}
 		else {
 			selectedArtists.value.add(artistId)
 		}
-		// Trigger reactivity
-		selectedArtists.value = new Set(selectedArtists.value)
+		// new Set(...) is not needed for reactivity in Vue 3; Set mutations are tracked
+		console.log("selected artist", selectedArtists.value)
 	}
 
-	function toggleSelectAll(event: EventData) {
+	const toggleSelectAll = (event: EventData) => {
 		if (selectedArtists.value.size === event.artists.length) {
 			selectedArtists.value.clear()
 		}
@@ -23,28 +28,56 @@ export const usePlaylist = () => {
 		}
 	}
 
-	async function createPlaylist(event: EventData, artistIds: Set<string>) {
-		try {
-			const selectedArtistData = event.artists.filter(a => artistIds.has(a.id))
+	const createPlaylist = async (payload: CreatePlaylistPayload, token: string) => {
+		if (!user.value?.id) return
 
-			const response = await $fetch("/api/spotify/playlist", {
+		const data = await $fetch<{ id: string }>(
+			`/api/playlist/user/${user.value.id}`,
+			{
 				method: "POST",
-				body: {
-					name: event.name,
-					artists: selectedArtistData,
-					tracksPerArtist: 3,
+				headers: {
+					Authorization: `Bearer ${token}`, // NOT Basic, NOT raw token
 				},
-			})
+				body: {
+					name: payload,
+				},
+			},
+		)
 
-			// Handle response (show success, redirect to Spotify, etc.)
-			console.log("Playlist created:", response)
+		// $fetch throws on HTTP error, so no error ref to inspect here [web:46][web:50]
+		return data
+	}
 
-			return response
-		}
-		catch (e) {
-			console.error("Playlist creation error:", e)
-			throw e
-		}
+	const addTracksToPlaylist = async (
+		playlistId: string,
+		payload: AddTracksPayload,
+		token: string,
+	) => {
+		const data = await $fetch(
+			`/api/playlist/${playlistId}`,
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`, // NOT Basic, NOT raw token
+				},
+				body: payload,
+			},
+		)
+
+		return data
+	}
+
+	const createPlaylistWithTracks = async (
+		playlistPayload: CreatePlaylistPayload,
+		tracksPayload: AddTracksPayload,
+	) => {
+		const existingToken = await getAccessToken()
+		if (!user.value?.id || !existingToken) return
+		const playlist = await createPlaylist(playlistPayload, existingToken)
+		if (!playlist?.id) return
+
+		await addTracksToPlaylist(playlist.id, tracksPayload, existingToken)
+		return playlist
 	}
 
 	return {
@@ -52,5 +85,7 @@ export const usePlaylist = () => {
 		toggleArtist,
 		toggleSelectAll,
 		createPlaylist,
+		addTracksToPlaylist,
+		createPlaylistWithTracks,
 	}
 }

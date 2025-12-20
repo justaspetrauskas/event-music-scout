@@ -3,13 +3,15 @@ import type { RawTrack, Track } from "@@/types/index.ts"
 function processTracks(tracks: RawTrack[]): Track[] {
 	return tracks
 		.sort((a, b) => b.popularity - a.popularity)
-		.map(({ popularity, name, id, album, is_playable, duration_ms }) => ({
+		.map(({ popularity, name, id, album, is_playable, duration_ms, uri, preview_url }) => ({
 			popularity,
 			name,
 			id,
 			album,
 			isPlayable: is_playable,
 			duration: duration_ms,
+			uri,
+			previewUrl: preview_url,
 		}))
 }
 
@@ -30,6 +32,5 @@ export default defineEventHandler(async (event) => {
 		return { error }
 	}
 	const { tracks } = await res.json()
-
 	return processTracks(tracks)
 })

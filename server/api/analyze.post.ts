@@ -11,9 +11,7 @@ async function getAccessToken() {
 	if (cachedToken && now < tokenExpiry) {
 		return cachedToken
 	}
-
-	console.log("gets access token")
-	const tokenResponse = await $fetch("/api/spotify/spotify-token", { method: "POST" })
+	const tokenResponse = await $fetch("/api/spotify/auth/token", { method: "POST", body: { grant_type: "client_credentials" } })
 	cachedToken = tokenResponse.access_token
 	tokenExpiry = now + tokenResponse.expires_in * 1000 // expires_in is in seconds
 	return cachedToken
@@ -25,13 +23,13 @@ export default defineEventHandler(async (event) => {
 	const { url } = await readBody(event)
 
 	// Get all visible text from the main body
-	// const pageText = await getEventPageText(url)
+	const pageText = await getEventPageText(url)
 
 	// Step 2: Ask Anthropic Claude to extract artists and details from the text
 	// const anthropic = new Anthropic({ anthropicApiKey })
 	// const aiPrompt = eventExtractionPrompt(pageText)
 
-	// TODO commented for test
+	// // TODO commented for test
 	// const response = await anthropic.messages.create({
 	// 	model: "claude-sonnet-4-20250514",
 	// 	messages: [{ role: "user", content: aiPrompt }],
@@ -48,28 +46,26 @@ export default defineEventHandler(async (event) => {
 	// 	extracted = { name: "", date: "", location: "", artists: [] }
 	// }
 
-	const artists = testResponse.artists.map(a => a.name).join(",")
-	const searchResults = await $fetch("/api/spotify/search-artist", { method: "GET", headers: {
-		Authorization: `Bearer ${accessToken}`,
-	}, params: { q: artists } })
+	// console.log("extracted", extracted)
 
+	const artists = testResponse.artists
+	const genres = testResponse.genres
+	const searchResults = await $fetch("/api/spotify/search-artist", {
+		method: "POST",
+		headers: {
+			"Authorization": `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
+		},
+		body: { artists, genres } })
+
+	console.log("search results", searchResults.data)
 	await new Promise(resolve => setTimeout(resolve, 2000))
 
-	// return {
-	// 	name: extracted.name || "Event Name",
-	// 	date: extracted.date || "TBD",
-	// 	location: extracted.location || "TBD",
-	// 	url,
-	// 	artists: (extracted.artists || []).map((name: string, idx: number) => ({
-	// 		id: `artist-${idx + 1}`,
-	// 		name,
-	// 		genres: [],
-	// 		popularity: 0,
-	// 		followers: "",
-	// 		image: "🎵",
-	// 		spotifyUrl: "",
-	// 		tracks: [],
-	// 	})),
-	// }
-	return { ...testResponse, artists: searchResults }
+	return {
+		name: testResponse.name || "Event Name",
+		date: testResponse.date || "TBD",
+		location: testResponse.location || "TBD",
+		url,
+		artists: searchResults.data,
+	}
 })

@@ -10,7 +10,6 @@
 				:key="track.id"
 				:track="track"
 				:is-playing="currentTrackId === track.id"
-				@play="emit('play-track', track.id, track.name)"
 			/>
 		</div>
 	</div>
@@ -18,6 +17,10 @@
 
 <script lang="ts" setup>
 import type { Track } from "@@/types"
+
+const { play } = useMusicPlayerStore()
+const musicPlayerStore = useMusicPlayerStore()
+const { player, isConnected } = storeToRefs(musicPlayerStore)
 
 defineProps<{
 	tracks: Track[]

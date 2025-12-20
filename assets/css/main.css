@@ -1,15 +1,2 @@
-:root {
-  --pico-spacing: 1rem;
-  --pico-border-radius: 0.5rem;
-  --pico-form-element-spacing-vertical: 0.75rem;
-  --pico-form-element-spacing-horizontal: 1rem;
-}
 
-body {
-  padding: 1.5rem;
-}
-
-.container {
-    max-width: 900px;
-}
 
