@@ -10,7 +10,7 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 	const selectedArtists = ref<Map<string, Artist>>(new Map())
 
 	const selectArtist = (artist: Artist) => {
-		selectedArtists.value.set(artist.id, artist) // Stores ENTIRE artist object
+		selectedArtists.value.set(artist.id, artist)
 	}
 
 	const removeArtist = (artistId: string) => {
@@ -31,16 +31,13 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 			selectedArtists.value.clear()
 		}
 		else {
-			// Stores ENTIRE artist objects by id key
 			const artistMap = new Map(event.artists.map(a => [a.id, a]))
 			selectedArtists.value = artistMap
 		}
 	}
 
-	// Direct access to full artist objects
 	const getArtist = (artistId: string) => selectedArtists.value.get(artistId)
 
-	// Convenience getters
 	const selectedArtistArray = computed(() => Array.from(selectedArtists.value.values()))
 	const selectedArtistIds = computed(() => Array.from(selectedArtists.value.keys()))
 	const getAllTrackUris = computed(() => {
