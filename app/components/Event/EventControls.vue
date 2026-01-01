@@ -1,5 +1,5 @@
 <template>
-	<nav class="controls-bar">
+	<nav>
 		<button
 			role="button"
 			class="secondary"

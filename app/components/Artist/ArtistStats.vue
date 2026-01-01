@@ -1,17 +1,16 @@
 <template>
-	<div class="artist-stats">
-		<div class="stat">
-			<span>⭐</span>
-			<span>{{ popularity }}/100</span>
-		</div>
-		<div class="stat">
-			<span>👥</span>
-			<span>{{ followers }}</span>
+	<div class="flex items-start gap-1">
+		<div class="flex items-center gap-2">
+			<Users class="w-3.5 h-3.5" />
+			<span class="font-medium">{{ followers }}</span>
+			<span class="">followers</span>
 		</div>
 	</div>
 </template>
 
 <script lang="ts" setup>
+import { Users, Heart } from "lucide-vue-next"
+
 defineProps<{
 	popularity: number
 	followers: string
@@ -19,16 +18,5 @@ defineProps<{
 </script>
 
 <style>
-.artist-stats {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: var(--pico-muted-color);
-}
 
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
 </style>

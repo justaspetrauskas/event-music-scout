@@ -1,38 +1,35 @@
 <template>
-	<div class="artist-header">
-		<input
-			type="checkbox"
-			class="artist-checkbox"
-			:checked="selected"
-			@change="emit('toggle-select')"
-		>
-
-		<div class="artist-image">
-			<img
-				:src="artist.images[2]?.url"
-				:alt="artist.name"
-			>
-		</div>
-
-		<div class="artist-info">
-			<div class="artist-name">
-				{{ artist.name }}
-			</div>
-			<div class="artist-genres">
-				<span
-					v-for="genre in artist.genres"
-					:key="genre"
-					class="genre-tag"
+	<div class="flex align-center flex-row justify-between mb-4 w-full">
+		<div class="flex flex-row gap-4">
+			<div class="relative flex-shrink-0 w-20 h-20 rounded overflow-hidden bg-muted">
+				<img
+					:src="artist.images[0]?.url"
+					:alt="artist.name"
+					class="w-full h-full object-cover"
 				>
-					{{ genre }}
-				</span>
+			</div>
+
+			<div class="flex flex-col items-start">
+				<h3>
+					{{ artist.name }}
+				</h3>
+				<div class="flex items-center gap-2 mt-auto">
+					<ArtistStats
+						:popularity="artist.popularity"
+						:followers="artist.followers"
+					/>
+					<div class="flex flex-wrap gap-1.5 mt-auto">
+						<span
+							v-for="genre in artist.genres"
+							:key="genre"
+							class="px-2 py-0.5 bg-gray-200/60 text-gray-400 border border-gray-200 dark:text-white rounded-full text-xs capitalize"
+						>
+							{{ genre }}
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
-
-		<ArtistStats
-			:popularity="artist.popularity"
-			:followers="artist.followers"
-		/>
 	</div>
 </template>
 
@@ -50,46 +47,5 @@ const emit = defineEmits<{
 </script>
 
 <style>
-.artist-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
 
-.artist-checkbox {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  cursor: pointer;
-}
-
-.artist-image {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--pico-border-radius);
-  background: var(--pico-secondary-background);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.artist-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.artist-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.artist-genres {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
 </style>

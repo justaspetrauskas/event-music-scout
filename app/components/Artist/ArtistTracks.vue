@@ -1,10 +1,13 @@
 <template>
-	<div class="tracks-section">
-		<div class="tracks-header">
-			<span class="tracks-title">Top Tracks</span>
-		</div>
+	<Transition name="tracks-collapse">
+		<div
+			v-if="isExpanded"
+			class="py-4"
+		>
+			<h4 class="font-bold">
+				Top tracks
+			</h4>
 
-		<div class="track-list">
 			<TrackItem
 				v-for="track in tracks"
 				:key="track.id"
@@ -12,7 +15,7 @@
 				:is-playing="currentTrackId === track.id"
 			/>
 		</div>
-	</div>
+	</Transition>
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +28,7 @@ const { player, isConnected } = storeToRefs(musicPlayerStore)
 defineProps<{
 	tracks: Track[]
 	currentTrackId: string | null
+	isExpanded: boolean
 }>()
 
 const emit = defineEmits<{
@@ -33,5 +37,21 @@ const emit = defineEmits<{
 </script>
 
 <style>
+.tracks-collapse-enter-active,
+.tracks-collapse-leave-active {
+  transition: all 0.3s ease-in-out;
+  transition-delay: 0.15s;
+}
 
+.tracks-collapse-enter-from,
+.tracks-collapse-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.tracks-collapse-enter-to,
+.tracks-collapse-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>

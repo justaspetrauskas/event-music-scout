@@ -4,9 +4,11 @@ export default <Partial<Config>>{
 	theme: {
 		extend: {
 			colors: {
-				background: "var(--background)",
-				foreground: "var(--color-primary)",
-				spotify: "var(--spotify-green)",
+				background: "hsl(var(--background))",
+				foreground: "hsl(var(--color-primary))",
+				spotify: "hsl(var(--spotify-green) / <alpha-value>)",
+				accent: "hsl(var(--accent) / <alpha-value>)",
+				muted: "hsl(var(--muted) / <alpha-value>)",
 			},
 		},
 	},

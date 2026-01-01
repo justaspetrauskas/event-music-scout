@@ -3,31 +3,34 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --base-font-size: 16px;
-    --color-primary: hsl(0,0,0);
-    --color-secondary: hsl(0,0%,50%);
-    --spotify-green: hsl(141deg, 73%, 42%);
-    --input: transparent;
-    --input-background: hsl(240, 9%, 96%);
-    --background: hsl(0, 0%, 100%);
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
+:root {
+  --base-font-size: 16px;
+  --color-primary: 0 0% 0%;
+  --color-secondary: 0 0% 50%;
+  --spotify-green: 141 73% 42%;
+  --input: transparent;
+  --input-background: 240 9% 96%;
+  --background: 0 0% 100%;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --accent: 141 73% 42%;
+  --muted: 240, 12%, 93%;
+  --muted-foreground: 141 73% 42%;
+}
 
-  }
-  
-  .dark {
-    --base-font-size: 16px;
-    --color-primary: hsl(0, 0%, 98%);
-    --color-secondary: hsl(0, 0%, 87%);
-    --spotify-green: hsl(141deg, 73%, 42%);
-    --input: transparent;
-    --input-background: transparent;
-    --background: hsl(0, 0%, 7%);
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
-
-  }
+.dark {
+  --base-font-size: 16px;
+  --color-primary: 0 0% 98%;
+  --color-secondary: 0 0% 87%;
+  --spotify-green: 141 73% 42%;
+  --input: transparent;
+  --input-background: transparent;
+  --background: 0 0% 7%;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --accent: 141 73% 42%;
+  --muted: 240, 12%, 93%
+}
   
  body {
     @apply 
@@ -54,6 +57,12 @@
 
   h3 {
     font-size: 2rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: 1.4rem;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }

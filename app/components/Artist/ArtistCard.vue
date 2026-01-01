@@ -1,17 +1,31 @@
 <template>
 	<div
-		class="artist-card"
+		class="border-b border-gray-500 last:border-b-0"
 		:class="{ selected }"
 	>
-		<ArtistHeader
-			:artist="artist"
-			:selected="selected"
-			@toggle-select="handleSelectArtist(artist)"
-		/>
+		<div
+			class="w-full flex items-center gap-4 p-3 hover:bg-muted/50 transition-colors duration-200 group"
+			role="button"
+			@click.stop="setIsExpanded"
+		>
+			<div
+				class="flex-shrink-0 text-muted-foreground group-hover:text-foreground transform transition-transform duration-200"
+				:class="{ 'rotate-180': isExpanded }"
+			>
+				<ChevronDown class="w-4 h-4" />
+			</div>
+			<ArtistHeader
+				:artist="artist"
+				:selected="selected"
+			/>
+		</div>
 
+		<!-- <ArtistControls @toggle-select="handleSelectArtist(artist)" /> -->
 		<ArtistTracks
+			v-if="isExpanded"
 			:tracks="artist.tracks"
 			:current-track-id="null"
+			:is-expanded="isExpanded"
 			@play-track="handlePlayTrack"
 		/>
 	</div>
@@ -19,6 +33,7 @@
 
 <script lang="ts" setup>
 import type { Artist } from "@@/types"
+import { ChevronDown } from "lucide-vue-next"
 import { usePlaylistStore } from "~/stores/playlistStore"
 
 const playlistStore = usePlaylistStore()
@@ -30,6 +45,8 @@ const props = defineProps<{
 	selected: boolean
 }>()
 
+const isExpanded = ref(false)
+
 const emit = defineEmits<{
 	"toggle-select": [artistId: string]
 	"play-track": [trackId: string, artistName: string, trackName: string]
@@ -37,6 +54,10 @@ const emit = defineEmits<{
 
 const handlePlayTrack = (trackId: string, trackName: string) => {
 	emit("play-track", trackId, props.artist.name, trackName)
+}
+
+const setIsExpanded = () => {
+	isExpanded.value = !isExpanded.value
 }
 
 const handleSelectArtist = (artist: Artist) => {
@@ -49,19 +70,5 @@ const handleSelectArtist = (artist: Artist) => {
 </script>
 
 <style>
-.artist-card {
-  padding: 1.25rem;
-  border-radius: var(--pico-border-radius);
-  border: 2px solid var(--pico-card-border-color);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  transition: all 0.2s;
-}
 
-.artist-card.selected {
-  border-color: var(--pico-primary);
-  box-shadow: 0 0 0 2px var(--pico-primary-focus);
-	backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-}
 </style>

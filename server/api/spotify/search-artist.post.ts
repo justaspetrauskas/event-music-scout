@@ -2,12 +2,10 @@ import Fuse from "fuse.js"
 import type { Artist } from "~~/types"
 
 function genreMatchesArtist(artistGenres: string[], targetGenres: string[]): boolean {
-	if (!targetGenres.length) return true
-
-	if (!artistGenres.length) return true
+	if (!targetGenres.length || !artistGenres.length) return true
 
 	const genreFuse = new Fuse(artistGenres, {
-		threshold: 0.6,
+		threshold: 0.4,
 		includeScore: true,
 	})
 
@@ -18,6 +16,7 @@ function genreMatchesArtist(artistGenres: string[], targetGenres: string[]): boo
 }
 
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
+	console.log("finding match for", query)
 	const genreMatches = items.filter(artist =>
 		genreMatchesArtist(artist.genres, targetGenres),
 	)
@@ -83,12 +82,12 @@ export default defineEventHandler(async (event) => {
 			const parsedArtists: Artist[] = artists.items
 				.map((artist: Artist) => ({
 					id: artist.id,
+					name: artist.name,
 					images: artist.images ?? [],
 					genres: artist.genres ?? [],
 				}))
 
 			const bestMatch = findBestMatch(parsedArtists, artistQuery, eventGenres)
-
 			if (!bestMatch) return null
 
 			const topTracks = await $fetch(`/api/spotify/artist/topTracks/${bestMatch.id}`, {
@@ -109,11 +108,11 @@ export default defineEventHandler(async (event) => {
 	console.log(`Matching complete: ${successfulMatches.length}/${artistsQueryArr.length} found`)
 
 	return {
-		matches: successfulMatches.length,
+		matches: successfulMatches,
 		total: artistsQueryArr.length,
 		failed: failedMatches.length,
 		data: successfulMatches.map(({ followers, genres, id, images, name, popularity, uri, tracks }: Artist) => ({
-			followers: followers.total.toString(),
+			followers: followers.total.toLocaleString(),
 			genres,
 			id,
 			images,

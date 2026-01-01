@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="min-h-screen flex items-center flex-col justify-center">
 		<!-- <BackgroundEffect /> -->
 
 		<!-- <div class="container header-container">
@@ -8,34 +8,41 @@
 					Discover the music vibe before you commit to the party
 				</p>
 			</div> -->
-
-		<event-input-vue
-			v-model="urlToAnalyze"
-			:loading="loading"
-			@analyze="handleAnalyzeEvent"
-		/>
+		<div class="max-w-2xl w-full">
+			<event-input-vue
+				v-model="urlToAnalyze"
+				:data-loaded="eventData !== null"
+				:loading="loading"
+				@analyze="handleAnalyzeEvent"
+			/>
+		</div>
 		<!-- loading -->
 		<!-- empty state -->
-		<template v-if="eventData">
-			<EventControls
-				:selected-count="selectedArtists.size"
-				:total-artists="eventData.artists.length"
-				:all-selected="allArtistsSelected"
-				@toggle-select-all="handleToggleSelectAll"
-				@play-all="handlePlayAll"
-				@create-playlist="handleCreatePlaylist"
-			/>
+		<div
+			v-if="eventData"
+			class="max-w-4xl w-full"
+		>
+			<section class="w-full">
+				<!-- <EventControls
+					:selected-count="selectedArtists.size"
+					:total-artists="eventData.artists.length"
+					:all-selected="allArtistsSelected"
+					@toggle-select-all="handleToggleSelectAll"
+					@play-all="handlePlayAll"
+					@create-playlist="handleCreatePlaylist"
+				/> -->
 
-			<section class="artist-list">
-				<ArtistCard
-					v-for="artist in eventData.artists"
-					:key="artist.id"
-					:artist="artist"
-					:selected="selectedArtists.has(artist.id)"
-				/>
+				<section class="overflow-hidden">
+					<ArtistCard
+						v-for="artist in eventData.artists"
+						:key="artist.id"
+						:artist="artist"
+						:selected="selectedArtists.has(artist.id)"
+					/>
+				</section>
 			</section>
 			<!-- <MusicPlayer /> -->
-		</template>
+		</div>
 		<PlaylistFormModal
 			v-if="isPlaylistFormModalVisible"
 			@close-modal="onCloseModal()"

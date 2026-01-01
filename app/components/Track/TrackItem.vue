@@ -1,28 +1,32 @@
 <template>
-	<div class="track-item">
-		<!-- <button
-			class="play-btn"
-			:class="{ playing: isPlaying }"
-			title="Play preview"
-			@click="emit('play')"
+	<div
+		class="track-item flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer
+           hover:bg-spotify/60 transition-colors duration-150 group"
+	>
+		<input
+			type="checkbox"
+			class="artist-checkbox"
+			:checked="selected"
+			@change="handleSelectTrack"
 		>
-			<Icon
-				:name="isPlaying ? 'ic:baseline-pause': 'ic:baseline-play-arrow'"
-				class="play-btn-icon"
-			/>
-		</button> -->
+		<!-- Play button -->
 		<PlayButton
 			:is-playing="isPlaying"
-			@click="handlePlayTrack"
+			@click.stop="handlePlayTrack"
 		/>
 
-		<div class="track-info">
-			<div class="track-name">
+		<!-- Track info -->
+		<div class="track-info flex-1 min-w-0">
+			<div
+				class="track-name text-sm font-medium text-foreground truncate
+               group-hover:text-foreground"
+			>
 				{{ track.name }}
 			</div>
 		</div>
 
-		<div class="track-duration">
+		<!-- Duration -->
+		<div class="track-duration text-xs text-muted-foreground text-semibold">
 			{{ trackDuration }}
 		</div>
 	</div>
@@ -52,6 +56,10 @@ const trackDuration = computed(() => {
 	return msToMinutesSeconds(+props.track.duration)
 })
 
+const handleSelectTrack = () => {
+	console.log("selected track", props.track)
+}
+
 const handlePlayTrack = async () => {
 	if (!props.track.uri) return
 
@@ -67,62 +75,5 @@ const handlePlayTrack = async () => {
 </script>
 
 <style>
-.track-info {
-  flex: 1;
-  min-width: 0;
-}
 
-.track-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.track-duration {
-  font-size: 0.875rem;
-  color: var(--pico-muted-color);
-}
-
-.track-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  border-radius: var(--pico-border-radius);
-  transition: background 0.2s;
-}
-
-.track-item:hover {
-  background: var(--pico-secondary-background);
-}
-
-/* Play Button */
-.play-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: var(--pico-primary);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  transition: background 0.2s;
-  flex-shrink: 0;
-  padding: 0;
-  margin: 0;
-}
-
-.play-btn:hover {
-  background: var(--pico-primary-hover);
-}
-
-.play-btn-icon {
-	font-size: 1.25rem;
-	color: var(--pico-background-color);
-}
 </style>
