@@ -2,20 +2,21 @@
 	<div
 		class="track-item flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer
            hover:bg-spotify/60 transition-colors duration-150 group"
+		@click="handleSelectTrack"
 	>
 		<input
 			type="checkbox"
-			class="artist-checkbox"
-			:checked="selected"
+			class=""
+			:checked="selectedTracks.has(track.uri)"
+			@click.stop
 			@change="handleSelectTrack"
 		>
-		<!-- Play button -->
+
 		<PlayButton
 			:is-playing="isPlaying"
 			@click.stop="handlePlayTrack"
 		/>
 
-		<!-- Track info -->
 		<div class="track-info flex-1 min-w-0">
 			<div
 				class="track-name text-sm font-medium text-foreground truncate
@@ -25,7 +26,6 @@
 			</div>
 		</div>
 
-		<!-- Duration -->
 		<div class="track-duration text-xs text-muted-foreground text-semibold">
 			{{ trackDuration }}
 		</div>
@@ -35,10 +35,14 @@
 <script lang="ts" setup>
 import type { Track } from "~~/types"
 import PlayButton from "../UI/PlayButton.vue"
+import { usePlaylistStore } from "~/stores/playlistStore"
 
 const { msToMinutesSeconds } = useUseUtilMethods()
 const { playTrack } = useTrackPlaybackMethods()
 const musicPlayerStore = useMusicPlayerStore()
+const playlistStore = usePlaylistStore()
+const { toggleTrack } = usePlaylistStore()
+const { selectedTracks } = storeToRefs(playlistStore)
 const { togglePlayback } = musicPlayerStore
 const { currentTrack, isPaused } = storeToRefs(musicPlayerStore)
 
@@ -57,7 +61,7 @@ const trackDuration = computed(() => {
 })
 
 const handleSelectTrack = () => {
-	console.log("selected track", props.track)
+	toggleTrack(props.track.uri)
 }
 
 const handlePlayTrack = async () => {

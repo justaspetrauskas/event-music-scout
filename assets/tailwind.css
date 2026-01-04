@@ -16,6 +16,7 @@
   --accent: 141 73% 42%;
   --muted: 240, 12%, 93%;
   --muted-foreground: 141 73% 42%;
+  --border: rgba(0, 0, 0, 0.1);
 }
 
 .dark {
@@ -29,7 +30,8 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --accent: 141 73% 42%;
-  --muted: 240, 12%, 93%
+  --muted: 240, 12%, 93%;
+  --border: rgba(255, 255, 255, 0.9);
 }
   
  body {

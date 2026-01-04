@@ -5,7 +5,6 @@ export const usePlaylist = () => {
 	const { user } = storeToRefs(userStore)
 	const { getAccessToken } = useSpotifyOAuthMethods()
 
-	// Selected artists by id (for UI); optional if you later move this to Pinia store
 	const selectedArtists = ref<Set<string>>(new Set())
 
 	const toggleArtist = (artistId: string) => {
@@ -15,8 +14,6 @@ export const usePlaylist = () => {
 		else {
 			selectedArtists.value.add(artistId)
 		}
-		// new Set(...) is not needed for reactivity in Vue 3; Set mutations are tracked
-		console.log("selected artist", selectedArtists.value)
 	}
 
 	const toggleSelectAll = (event: EventData) => {
@@ -36,7 +33,7 @@ export const usePlaylist = () => {
 			{
 				method: "POST",
 				headers: {
-					Authorization: `Bearer ${token}`, // NOT Basic, NOT raw token
+					Authorization: `Bearer ${token}`,
 				},
 				body: {
 					name: payload,
@@ -44,23 +41,44 @@ export const usePlaylist = () => {
 			},
 		)
 
-		// $fetch throws on HTTP error, so no error ref to inspect here [web:46][web:50]
 		return data
+	}
+
+	const getUserPlaylists = async () => {
+		const existingToken = await getAccessToken()
+		if (!user.value?.id || !existingToken) return
+
+		const data = await $fetch(`/api/playlist/me`, {
+			headers: {
+				Authorization: `Bearer ${existingToken}`,
+			},
+		})
+
+		// TODO create type for playlist and p
+		const filteredPlaylists = data.filter(playlist => playlist.owner.id === user.value.id).map(p => ({ id: p.id, images: p.images, name: p.name, totalTracks: p.tracks.total }))
+		return filteredPlaylists
 	}
 
 	const addTracksToPlaylist = async (
 		playlistId: string,
-		payload: AddTracksPayload,
-		token: string,
+		payload: string[],
+		token: string | null = null,
 	) => {
+		const bearerToken = token || await getAccessToken()
+
+		const playlistData = {
+			uris: Array.from(payload),
+			position: 0,
+		}
+
 		const data = await $fetch(
 			`/api/playlist/${playlistId}`,
 			{
 				method: "POST",
 				headers: {
-					Authorization: `Bearer ${token}`, // NOT Basic, NOT raw token
+					Authorization: `Bearer ${bearerToken}`, // NOT Basic, NOT raw token
 				},
-				body: payload,
+				body: playlistData,
 			},
 		)
 
@@ -87,5 +105,6 @@ export const usePlaylist = () => {
 		createPlaylist,
 		addTracksToPlaylist,
 		createPlaylistWithTracks,
+		getUserPlaylists,
 	}
 }

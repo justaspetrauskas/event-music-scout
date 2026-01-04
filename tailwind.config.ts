@@ -9,6 +9,7 @@ export default <Partial<Config>>{
 				spotify: "hsl(var(--spotify-green) / <alpha-value>)",
 				accent: "hsl(var(--accent) / <alpha-value>)",
 				muted: "hsl(var(--muted) / <alpha-value>)",
+				border: "var(--border)",
 			},
 		},
 	},

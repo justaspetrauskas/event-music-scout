@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<header class="flex justify-end items-center gap-4 p-4 fixed top-0">
+		<header class="flex justify-end items-center w-full gap-4 p-4 fixed top-0">
 			<SpotifyLogin />
 			<ThemeToggle />
 		</header>

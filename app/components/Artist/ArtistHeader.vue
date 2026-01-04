@@ -1,5 +1,5 @@
 <template>
-	<div class="flex align-center flex-row justify-between mb-4 w-full">
+	<div class="flex align-center flex-row justify-between w-full">
 		<div class="flex flex-row gap-4">
 			<div class="relative flex-shrink-0 w-20 h-20 rounded overflow-hidden bg-muted">
 				<img

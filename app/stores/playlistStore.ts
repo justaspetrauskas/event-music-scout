@@ -8,6 +8,7 @@ interface EventData {
 
 export const usePlaylistStore = defineStore("playlistStore", () => {
 	const selectedArtists = ref<Map<string, Artist>>(new Map())
+	const selectedTracks = ref<Set<string>>(new Set())
 
 	const selectArtist = (artist: Artist) => {
 		selectedArtists.value.set(artist.id, artist)
@@ -17,23 +18,28 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 		selectedArtists.value.delete(artistId)
 	}
 
-	const toggleArtist = (artist: Artist) => {
-		if (selectedArtists.value.has(artist.id)) {
-			selectedArtists.value.delete(artist.id)
+	const toggleTrack = (trackId: string) => {
+		if (selectedTracks.value.has(trackId)) {
+			selectedTracks.value.delete(trackId)
 		}
 		else {
-			selectedArtists.value.set(artist.id, artist)
+			selectedTracks.value.add(trackId)
 		}
 	}
 
+	const toggleArtist = (artist: Artist) => {
+		artist.tracks.forEach((track) => {
+			toggleTrack(track.uri as string)
+		})
+	}
+
 	const toggleSelectAll = (event: EventData) => {
-		if (selectedArtists.value.size === event.artists.length) {
-			selectedArtists.value.clear()
-		}
-		else {
-			const artistMap = new Map(event.artists.map(a => [a.id, a]))
-			selectedArtists.value = artistMap
-		}
+		const allTrackIds = event.artists.flatMap(artist =>
+			artist.tracks.map(track => track.id),
+		)
+
+		// Bulk add all at once (much faster than N individual adds)
+		selectedTracks.value = new Set([...selectedTracks.value, ...allTrackIds])
 	}
 
 	const getArtist = (artistId: string) => selectedArtists.value.get(artistId)
@@ -51,6 +57,8 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 		toggleArtist,
 		toggleSelectAll,
 		getArtist,
+		toggleTrack,
+		selectedTracks,
 		selectedArtistArray,
 		selectedArtistIds,
 		getAllTrackUris,

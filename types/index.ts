@@ -1,7 +1,7 @@
 export interface Artist {
 	id: string
 	name: string
-	images: ArtistImage[]
+	images: Images[]
 	genres: string[]
 	popularity: number
 	followers: string
@@ -11,10 +11,17 @@ export interface Artist {
 	uir: string
 }
 
-interface ArtistImage {
+interface Images {
 	height: number
 	url: string
 	width: number
+}
+
+export interface Playlist {
+	id: string
+	images: Images[]
+	name: string
+	totalTracks: number
 }
 
 export interface Track {
@@ -25,7 +32,7 @@ export interface Track {
 	isPlayable: boolean
 	album: string
 	popularity: string | number
-	uri?: string
+	uri: string
 }
 
 export interface EventData {

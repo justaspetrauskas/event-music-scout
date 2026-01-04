@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="relative w-full">
-			<div class="flex items-center gap-3 bg-card border border-border overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-spotify/50">
+			<div class="flex items-center gap-3 overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-spotify/50">
 				<Link
 					class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground"
 				/>
@@ -23,7 +23,7 @@
 				<input
 					v-model="eventUrl"
 					type="text"
-					placeholder="Paste event URL (Facebook, Resident Advisor, Eventbrite...)"
+					placeholder="Paste event URL"
 					class="flex-1 bg-transparent outline-none placeholder:text-muted-foreground text-foreground text-lg border-none dark:text-slate-50"
 					@keyup.enter="handleAnalyze"
 				>

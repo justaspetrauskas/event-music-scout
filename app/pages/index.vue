@@ -22,8 +22,7 @@
 			v-if="eventData"
 			class="max-w-4xl w-full"
 		>
-			<section class="w-full">
-				<!-- <EventControls
+			<!-- <EventControls
 					:selected-count="selectedArtists.size"
 					:total-artists="eventData.artists.length"
 					:all-selected="allArtistsSelected"
@@ -32,35 +31,48 @@
 					@create-playlist="handleCreatePlaylist"
 				/> -->
 
-				<section class="overflow-hidden">
-					<ArtistCard
-						v-for="artist in eventData.artists"
-						:key="artist.id"
-						:artist="artist"
-						:selected="selectedArtists.has(artist.id)"
-					/>
-				</section>
+			<TracksSelectionControl
+				@toggle-select-all="handleToggleSelectAll"
+				@clear-selection="handleClearSelection"
+				@play-all="handlePlayAll"
+				@create-playlist="handleCreatePlaylist"
+				@add-to-existing-playlist="handleAddToExistingPlaylist"
+			/>
+
+			<section class="overflow-hidden">
+				<ArtistCard
+					v-for="artist in eventData.artists"
+					:key="artist.id"
+					:artist="artist"
+					:selected="selectedArtists.has(artist.id)"
+				/>
 			</section>
+
 			<!-- <MusicPlayer /> -->
 		</div>
 		<PlaylistFormModal
 			v-if="isPlaylistFormModalVisible"
 			@close-modal="onCloseModal()"
 		/>
+		<ExistingPlaylistForm
+			v-if="isAddToExistinPlaylistModalVisible"
+			@close-modal="isAddToExistinPlaylistModalVisible = false"
+		/>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import BackgroundEffect from "@/components/UI/BackgroundEffect.vue"
+import TracksSelectionControl from "@/components/Track/TracksSelectionControl.vue"
 import PlaylistFormModal from "@/components/UI/PlaylistFormModal.vue"
 import MusicPlayer from "@/components/MusicPlayer/musicPlayerMain.vue"
 import type { EventData } from "~~/types"
 
 import { usePlaylistStore } from "~/stores/playlistStore"
+import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
 
 const playlistStore = usePlaylistStore()
 const { toggleSelectAll } = usePlaylistStore()
-const { selectedArtists } = storeToRefs(playlistStore)
+const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 
 const { analyzeEvent, loading } = useEventAnalyzer()
 const { handleOpenSpotifyOAuthWindow, getAccessToken } = useSpotifyOAuthMethods()
@@ -71,6 +83,7 @@ const router = useRouter()
 const eventData = ref<EventData | null>(null)
 const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
 const isPlaylistFormModalVisible = ref(false)
+const isAddToExistinPlaylistModalVisible = ref(false)
 
 const allArtistsSelected = computed(() => {
 	return eventData.value
@@ -99,13 +112,23 @@ const handlePlayAll = () => {
 }
 
 const handleCreatePlaylist = async () => {
-	if (!eventData.value || selectedArtists.value.size === 0) return
+	if (!eventData.value || selectedTracks.value.size === 0) return
 
 	const existingToken = await getAccessToken()
 	if (existingToken) {
-		console.log("Using cached access token")
-		// await createPlaylist(eventData.value, selectedArtists.value)
 		isPlaylistFormModalVisible.value = true
+		return existingToken
+	}
+
+	handleOpenSpotifyOAuthWindow()
+}
+
+const handleAddToExistingPlaylist = async () => {
+	if (!eventData.value || selectedTracks.value.size === 0) return
+
+	const existingToken = await getAccessToken()
+	if (existingToken) {
+		isAddToExistinPlaylistModalVisible.value = true
 		return existingToken
 	}
 
@@ -119,6 +142,10 @@ const onCloseModal = () => {
 const handleToggleSelectAll = () => {
 	if (eventData.value === null) return
 	toggleSelectAll(eventData.value)
+}
+
+const handleClearSelection = () => {
+	selectedTracks.value.clear()
 }
 
 onMounted(() => {

@@ -1,10 +1,10 @@
 <template>
 	<div
-		class="border-b border-gray-500 last:border-b-0"
+		class="border-b border-gray-500 last:border-b-0 py-3"
 		:class="{ selected }"
 	>
 		<div
-			class="w-full flex items-center gap-4 p-3 hover:bg-muted/50 transition-colors duration-200 group"
+			class="w-full flex items-center gap-4  hover:bg-muted/50 transition-colors duration-200 group"
 			role="button"
 			@click.stop="setIsExpanded"
 		>
