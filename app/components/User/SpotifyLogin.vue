@@ -9,7 +9,7 @@
         transition-all duration-300"
 			>
 				<button
-					v-if="isLoggedIn"
+					v-if="user"
 					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 pr-2
         cursor-pointer p-0"
 					@click="showDropdown = !showDropdown"
@@ -48,7 +48,7 @@
 			>
 				<button
 					class="w-full text-left px-4 py-2 text-sm hover:bg-accent rounded-lg transition-colors"
-					@click="logout"
+					@click="handleLogout()"
 				>
 					Logout
 				</button>
@@ -61,13 +61,12 @@
 import { ChevronDown } from "lucide-vue-next"
 import { ref } from "vue"
 
-const { getAccessToken, handleOpenSpotifyOAuthWindow } = useSpotifyOAuthMethods()
-const { fetchProfile } = useSpotifyProfile()
+const { getAccessToken, handleOpenSpotifyOAuthWindow, clearToken } = useSpotifyOAuthMethods()
+
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
-const { setUser } = useUserStore()
+const { logout, fetchUserProfile } = useUserStore()
 
-const isLoggedIn = ref(false)
 const showDropdown = ref(false)
 const spotifyIcon = "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
 
@@ -78,20 +77,15 @@ const login = async () => {
 	}
 }
 
-const logout = () => {
-	// Clear user session
-	// isLoggedIn.value = false
+const handleLogout = () => {
+	logout()
+	clearToken()
 }
 
 const checkExistingToken = async () => {
 	const existingToken = await getAccessToken()
 	if (existingToken) {
-		console.log("Using cached access token")
-		const profile = await fetchProfile(existingToken)
-		if (profile.id) {
-			setUser(profile)
-			isLoggedIn.value = true
-		}
+		await fetchUserProfile(existingToken)
 	}
 	return existingToken
 }

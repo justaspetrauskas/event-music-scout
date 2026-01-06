@@ -50,6 +50,10 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 		return selectedArtistArray.value.flatMap(artist => artist.tracks.map(track => track.uri))
 	})
 
+	const clearAllSelectedTracks = () => {
+		selectedTracks.value.clear()
+	}
+
 	return {
 		selectedArtists,
 		selectArtist,
@@ -62,5 +66,6 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 		selectedArtistArray,
 		selectedArtistIds,
 		getAllTrackUris,
+		clearAllSelectedTracks,
 	}
 })

@@ -9,5 +9,15 @@ export const useSpotifyProfile = () => {
 		return profile
 	}
 
-	return { fetchProfile }
+	const logout = async () => {
+		try {
+			await $fetch("/api/spotify/logout", { method: "POST" })
+			clearNuxtData()
+		}
+		catch (error) {
+			console.error("Logout failed", error)
+		}
+	}
+
+	return { fetchProfile, logout }
 }

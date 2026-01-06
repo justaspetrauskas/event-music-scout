@@ -1,7 +1,7 @@
 export const useSpotifyOAuthMethods = () => {
 	const token = ref<string | null>(null)
 	const config = useRuntimeConfig()
-	const { fetchProfile } = useSpotifyProfile()
+	const { fetchUserProfile } = useUserStore()
 	const { spotifyClientId, spotifyRedirectUri } = config.public
 
 	const getRedirectToAuthCodeFlow = async (): Promise<string> => {
@@ -55,7 +55,7 @@ export const useSpotifyOAuthMethods = () => {
 						authWindow.close()
 						const token = await getAccessToken()
 						if (token) {
-							await fetchProfile(token)
+							await fetchUserProfile(token)
 						}
 					}
 				}
