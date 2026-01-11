@@ -20,6 +20,8 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const isActive = ref(false)
 	const currentTrack = ref(null)
 	const progress = ref(0)
+	const nextTrackInQueue = ref(null)
+	const previousTrackInQueue = ref(null)
 
 	const connect = async (accessToken: string) => {
 		if (!import.meta.client || !window.Spotify?.Player) return false
@@ -50,13 +52,15 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			if (!state) {
 				return
 			}
-			console.log("state", state)
 
 			currentTrack.value = state.track_window.current_track
 			isPaused.value = state.paused
 			progress.value = state.position
+			nextTrackInQueue.value = state.track_window.next_tracks[0] || null
+			previousTrackInQueue.value = state.track_window.previous_tracks[0] || null
 
-			player.value.getCurrentState().then((state) => {
+			player.value.getCurrentState().then((state: any) => {
+				console.log("current state", state)
 				isActive.value = state
 			})
 		})
@@ -79,7 +83,10 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const pause = async () => await player.value?.pause()
 	const resume = async () => await player.value?.resume()
 	const togglePlayback = async () => await player.value?.togglePlay()
-	const nextTrack = async () => await player.value?.nextTrack()
+	const nextTrack = async () => {
+		console.log("play next")
+		await player.value?.nextTrack()
+	}
 	const previousTrack = async () => await player.value?.previousTrack()
 	const setVolume = async (volume: number) => await player.value?.setVolume(volume)
 
@@ -98,5 +105,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		setVolume,
 		resume,
 		togglePlayback,
+		nextTrackInQueue,
+		previousTrackInQueue,
 	}
 })

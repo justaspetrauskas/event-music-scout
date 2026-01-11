@@ -38,8 +38,12 @@
 			>
 				Add to existing playlist
 			</ButtonComponent>
-			<ButtonComponent variant="secondary">
-				Start radio
+			<ButtonComponent
+				v-if="selectedTracks.size > 0"
+				variant="secondary"
+				@click="emit('play-selected')"
+			>
+				Play selected
 			</ButtonComponent>
 		</div>
 	</section>
@@ -57,6 +61,7 @@ const emit = defineEmits<{
 	"clear-selection": []
 	"create-playlist": []
 	"add-to-existing-playlist": []
+	"play-selected": []
 }>()
 </script>
 

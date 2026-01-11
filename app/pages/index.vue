@@ -20,7 +20,7 @@
 		<!-- empty state -->
 		<div
 			v-if="eventData"
-			class="max-w-4xl w-full"
+			class="max-w-4xl w-full mb-16"
 		>
 			<!-- <EventControls
 					:selected-count="selectedArtists.size"
@@ -37,6 +37,7 @@
 				@play-all="handlePlayAll"
 				@create-playlist="handleCreatePlaylist"
 				@add-to-existing-playlist="handleAddToExistingPlaylist"
+				@play-selected="handlePlaySelected"
 			/>
 
 			<section class="overflow-hidden">
@@ -48,7 +49,7 @@
 				/>
 			</section>
 
-			<!-- <MusicPlayer /> -->
+			<MusicPlayer />
 		</div>
 		<PlaylistFormModal
 			v-if="isPlaylistFormModalVisible"
@@ -76,6 +77,7 @@ const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 
 const { analyzeEvent, loading } = useEventAnalyzer()
 const { handleOpenSpotifyOAuthWindow, getAccessToken } = useSpotifyOAuthMethods()
+const { addTracksToQueue, playTrack } = useTrackPlaybackMethods()
 
 const route = useRoute()
 const router = useRouter()
@@ -132,7 +134,21 @@ const handleAddToExistingPlaylist = async () => {
 		return existingToken
 	}
 
-	handleOpenSpotifyOAuthWindow()
+	// handleOpenSpotifyOAuthWindow()
+}
+
+const handlePlaySelected = async () => {
+	if (!eventData.value || selectedTracks.value.size === 0) return
+
+	const existingToken = await getAccessToken()
+	if (existingToken) {
+		// isAddToExistinPlaylistModalVisible.value = true
+		console.log("play selected tracks", selectedTracks.value)
+		playTrack(Array.from(selectedTracks.value))
+		return existingToken
+	}
+
+	// handleOpenSpotifyOAuthWindow()
 }
 
 const onCloseModal = () => {

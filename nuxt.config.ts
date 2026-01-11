@@ -8,6 +8,7 @@ export default defineNuxtConfig({
 		"nuxt-lucide-icons",
 		"@nuxtjs/tailwindcss",
 		"@vueuse/motion/nuxt",
+		"floating-vue/nuxt",
 	],
 	ssr: true,
 	devtools: { enabled: false },

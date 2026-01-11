@@ -35,11 +35,12 @@ export const usePlaylistStore = defineStore("playlistStore", () => {
 
 	const toggleSelectAll = (event: EventData) => {
 		const allTrackIds = event.artists.flatMap(artist =>
-			artist.tracks.map(track => track.id),
+			artist?.tracks.map(track => track.uri).filter(uri => uri?.startsWith("spotify:track:")),
 		)
 
 		// Bulk add all at once (much faster than N individual adds)
 		selectedTracks.value = new Set([...selectedTracks.value, ...allTrackIds])
+		console.log("all event artists", selectedTracks.value)
 	}
 
 	const getArtist = (artistId: string) => selectedArtists.value.get(artistId)

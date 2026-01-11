@@ -1,29 +1,17 @@
-import { getQuery } from "h3"
-
 export default defineEventHandler(async (event) => {
 	const { device_id } = getQuery(event)
 	const authorization = event.node.req.headers["authorization"]
 
-	const {body = await readBody(event)
-
-	const url = new URL("https://api.spotify.com/v1/me/player/play")
-	if (device_id) {
-		url.searchParams.append("device_id", device_id as string)
-	}
+	const url = new URL("https://api.spotify.com/v1/me/player/previous")
+	url.searchParams.append("device_id", device_id as string)
 
 	const res = await fetch(url.toString(), {
-		method: "PUT",
+		method: "POST",
 		headers: {
 			"Authorization": authorization as string,
 			"Content-Type": "application/json",
 		},
-		body: {
-			uris: JSON.stringify(body),
-			 position_ms: 0
-		}
 	})
-
-	console.log("play track res", res, body)
 
 	if (!res.ok) {
 		return { success: false }

@@ -24,7 +24,7 @@
 		<ArtistTracks
 			v-if="isExpanded"
 			:tracks="artist.tracks"
-			:current-track-id="null"
+			:current-track-id="currentTrack"
 			:is-expanded="isExpanded"
 			@play-track="handlePlayTrack"
 		/>
@@ -38,6 +38,8 @@ import { usePlaylistStore } from "~/stores/playlistStore"
 
 const playlistStore = usePlaylistStore()
 const { toggleArtist } = usePlaylistStore()
+const musicPlayerStore = useMusicPlayerStore()
+const { currentTrack } = storeToRefs(musicPlayerStore)
 const { getAllTrackUris } = storeToRefs(playlistStore)
 
 const props = defineProps<{
