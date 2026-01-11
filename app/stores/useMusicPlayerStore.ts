@@ -59,9 +59,9 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			nextTrackInQueue.value = state.track_window.next_tracks[0] || null
 			previousTrackInQueue.value = state.track_window.previous_tracks[0] || null
 
-			player.value.getCurrentState().then((state: any) => {
+			player.value.getCurrentState().then((state: unknown) => {
 				console.log("current state", state)
-				isActive.value = state
+				isActive.value = !!state
 			})
 		})
 
