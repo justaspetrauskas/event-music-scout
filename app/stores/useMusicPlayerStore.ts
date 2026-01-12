@@ -1,5 +1,7 @@
 import { defineStore } from "pinia"
+import { ref } from "vue"
 import type { Track } from "@@/types"
+import { useSpotifyOAuthMethods } from "@/composables/useSpotifyOAuthMethods"
 
 export interface SpotifyPlayer {
 	player: Spotify.Player | null
@@ -17,16 +19,16 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const { getAccessToken } = useSpotifyOAuthMethods()
 
 	const player = ref<Spotify.Player | null>(null)
-	const isConnected = ref(false)
-	const isPaused = ref(false)
-	const isActive = ref(false)
-	const isPlayerVisible = ref(false)
-	const currentTrack = ref(null)
-	const progress = ref(0)
-	const nextTrackInQueue = ref(null)
-	const previousTrackInQueue = ref(null)
+	const isConnected = ref<boolean>(false)
+	const isPaused = ref<boolean>(false)
+	const isActive = ref<boolean>(false)
+	const isPlayerVisible = ref<boolean>(false)
+	const currentTrack = ref<Track | null>(null)
+	const progress = ref<number>(0)
+	const nextTrackInQueue = ref<Track | null>(null)
+	const previousTrackInQueue = ref<Track | null>(null)
 
-	const connect = async (accessToken: string) => {
+	const connect = async (accessToken: string): Promise<boolean> => {
 		if (!import.meta.client) return false
 
 		const win = window as any
@@ -46,13 +48,12 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 
 		player.value = new win.Spotify.Player({
 			name: "Music Scout Player",
-			getOAuthToken: (cb: string) => cb(accessToken),
+			getOAuthToken: (cb: (token: string) => void) => cb(accessToken),
 			volume: 0.5,
 		})
 
 		// Event listeners
-		player.value.addListener("ready", ({ device_id }) => {
-			console.log("Player ready:", device_id)
+		player.value.addListener("ready", ({ device_id }: { device_id: string }) => {
 			player.value.id = device_id
 			isConnected.value = true
 		})
@@ -77,13 +78,14 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			nextTrackInQueue.value = state.track_window.next_tracks[0] || null
 			previousTrackInQueue.value = state.track_window.previous_tracks[0] || null
 
-			player.value.getCurrentState().then((state: unknown) => {
+			player.value.getCurrentState().then((state: Spotify.PlaybackState | null) => {
 				console.log("current state", state)
 				isActive.value = !!state
 			})
 		})
 
-		player.value.connect()
+		await player.value.connect()
+		return true
 	}
 
 	const disconnect = () => {
