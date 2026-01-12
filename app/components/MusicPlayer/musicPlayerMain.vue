@@ -184,12 +184,11 @@ const { connect, togglePlayback, setVolume } = musicPlayerStore
 const { currentTrack, state, isPaused, nextTrackInQueue, previousTrackInQueue } = storeToRefs(musicPlayerStore)
 
 const parsedTrackInfo = computed(() => {
-	const t: any = currentTrack.value
-	if (!t) return null
+	if (!currentTrack.value) return null
 
-	const cover = t?.album?.images?.[0]?.url ?? "/fallback-cover.png"
-	const artists = Array.isArray(t?.artists) ? t.artists.map((a: any) => a.name ?? "") : []
-	return { albumCover: cover, name: t.name ?? "", artists }
+	const cover = currentTrack.value?.album?.images?.[0]?.url
+	const artists = Array.isArray(currentTrack.value?.artists) ? currentTrack.value.artists.map((a: any) => a.name ?? "") : []
+	return { albumCover: cover, name: currentTrack.value.name ?? "", artists }
 })
 
 const volume = ref(0.5)
