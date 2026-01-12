@@ -66,5 +66,11 @@ export default defineEventHandler(async (event) => {
 		location: testResponse.location || "TBD",
 		url,
 		artists: searchResults.data,
+		_searchDebug: {
+			mapping: searchResults.mapping ?? null,
+			matches: Array.isArray(searchResults.matches) ? searchResults.matches.length : null,
+			failed: searchResults.failed ?? null,
+			totalRequested: Array.isArray(artists) ? artists.length : null,
+		},
 	}
 })

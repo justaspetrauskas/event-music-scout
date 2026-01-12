@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
 	const eventGenres = body.genres || []
 
 	// Search for each artist and find best genre match
+	const candidateCounts: number[] = []
 	const searchResults = await Promise.all(
 		artistsQueryArr.map(async (artistQuery: string) => {
 			const res = await fetch(
@@ -83,6 +84,7 @@ export default defineEventHandler(async (event) => {
 			}
 
 			const { artists } = await res.json()
+			candidateCounts.push(Array.isArray(artists?.items) ? artists.items.length : 0)
 
 			const parsedArtists: Artist[] = artists.items
 				.map((artist: Artist) => ({
@@ -121,6 +123,20 @@ export default defineEventHandler(async (event) => {
 		console.log(`Matching complete: ${filteredMatches.length}/${artistsQueryArr.length} found (removed ${removedDueToMissing.length} missing images/tracks)`)
 	}
 
+	// Build per-input mapping to help identify which input matched which artist (or failed)
+	const mapping = artistsQueryArr.map((inputArtist, idx) => {
+		const result = searchResults[idx]
+		if (!result) return { input: inputArtist, candidateCount: candidateCounts[idx] ?? 0, matched: null, error: result?.error ?? "no_match" }
+		const matched = (filteredMatches.find(m => m.id === (result as Artist).id) || null) as Artist | null
+		return {
+			input: inputArtist,
+			candidateCount: candidateCounts[idx] ?? 0,
+			matched: matched ? { id: matched.id, name: matched.name } : null,
+			raw: process.env.NODE_ENV !== "production" ? result : undefined,
+			error: (!result || (result as any).error) ? (result as any).error : undefined,
+		}
+	})
+
 	return {
 		matches: filteredMatches,
 		total: artistsQueryArr.length,
@@ -135,5 +151,6 @@ export default defineEventHandler(async (event) => {
 			tracks,
 			uri,
 		})),
+		mapping,
 	}
 })

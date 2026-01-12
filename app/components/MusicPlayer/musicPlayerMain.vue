@@ -114,7 +114,7 @@
 				<Volume2 class="w-8 h-8 text-gray-600" />
 				<input
 					ref="volumeRef"
-					v-model="volume"
+					v-model.number="volume"
 					type="range"
 					min="0"
 					step="0.01"
@@ -167,13 +167,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import { Play, Pause, SkipBack, SkipForward, Volume2, List } from "lucide-vue-next"
 
 interface Track {
 	id: string
 	name: string
 	artist: string
+	uri?: string
 }
 
 const { getAccessToken } = useSpotifyOAuthMethods()
@@ -183,20 +184,20 @@ const { connect, togglePlayback, setVolume } = musicPlayerStore
 const { currentTrack, state, isPaused, nextTrackInQueue, previousTrackInQueue } = storeToRefs(musicPlayerStore)
 
 const parsedTrackInfo = computed(() => {
-	if (!currentTrack.value) return null
+	const t: any = currentTrack.value
+	if (!t) return null
 
-	return { albumCover: currentTrack.value.album.images[0].url, name: currentTrack.value.name, artists: currentTrack.value.artists.map(artist => artist.name) }
+	const cover = t?.album?.images?.[0]?.url ?? "/fallback-cover.png"
+	const artists = Array.isArray(t?.artists) ? t.artists.map((a: any) => a.name ?? "") : []
+	return { albumCover: cover, name: t.name ?? "", artists }
 })
 
 const volume = ref(0.5)
 const showQueue = ref(false)
 
-const queue = ref<Track[]>([
-	{ id: "1", name: "Track 1", artist: "Artist" },
-	{ id: "2", name: "Track 2", artist: "Artist" },
-])
+const queue = ref<Track[]>([])
 
-const volumeRef = ref<HTMLInputElement>()
+const volumeRef = ref<HTMLInputElement | null>(null)
 
 const togglePlay = () => {
 	togglePlayback()
@@ -214,21 +215,39 @@ const handlePreviousTrack = async () => {
 	await previousTrack()
 }
 
-const playQueueTrack = (qTrack: Track) => {
-	track.value = qTrack
-}
-
-const innitPlayer = async () => {
-	const token = await getAccessToken()
-	if (token) {
-		await connect(token)
+const playQueueTrack = async (qTrack: Track) => {
+	if (qTrack.uri) {
+		const { addTracksToQueue } = useTrackPlaybackMethods()
+		await addTracksToQueue([qTrack.uri])
 	}
 }
 
-onMounted(() => {
-	innitPlayer()
+async function waitForSpotifySDK(timeout = 5000) {
+	const start = Date.now()
+	while (Date.now() - start < timeout) {
+		if (typeof window !== "undefined" && (window as any).Spotify && (window as any).Spotify.Player) return true
+		// small delay
 
-	if (volumeRef.value) volumeRef.value.value = volume.value.toString()
+		await new Promise(resolve => setTimeout(resolve, 250))
+	}
+	return false
+}
+
+const initPlayer = async () => {
+	const token = await getAccessToken()
+	if (!token) return
+
+	const sdkReady = await waitForSpotifySDK(7000)
+	if (!sdkReady) {
+		if (import.meta.env.DEV) console.warn("Spotify SDK not available yet")
+		return
+	}
+
+	await connect(token)
+}
+
+onMounted(() => {
+	initPlayer()
 })
 </script>
 
