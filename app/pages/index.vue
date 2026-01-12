@@ -157,7 +157,7 @@ const handlePlaySelected = async () => {
 
 	const existingToken = await getAccessToken()
 	if (existingToken) {
-		awaitshowPlayer()
+		await showPlayer()
 		await playTrack(Array.from(selectedTracks.value))
 		return existingToken
 	}
