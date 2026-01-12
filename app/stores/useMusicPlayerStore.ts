@@ -34,22 +34,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			return false
 		}
 
-		const win = window as any
-		// If the SDK isn't available yet, wait for the plugin promise to resolve
-		if (!win.Spotify?.Player) {
-			if (win._spotifySDKReady && typeof win._spotifySDKReady.then === "function") {
-				try {
-					await win._spotifySDKReady
-				}
-				catch (err) {
-					console.error("Spotify SDK failed to load", err)
-					return false
-				}
-			}
-			if (!win.Spotify?.Player) return false
-		}
-
-		player.value = new win.Spotify.Player({
+		player.value = new window.Spotify.Player({
 			name: "Music Scout Player",
 			getOAuthToken: (cb: (token: string) => void) => cb(accessToken),
 			volume: 0.5,
