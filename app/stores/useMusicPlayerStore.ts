@@ -33,7 +33,8 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			if (win._spotifySDKReady && typeof win._spotifySDKReady.then === "function") {
 				try {
 					await win._spotifySDKReady
-				} catch (err) {
+				}
+				catch (err) {
 					if (import.meta.env.DEV) console.error("Spotify SDK failed to load", err)
 					return false
 				}
