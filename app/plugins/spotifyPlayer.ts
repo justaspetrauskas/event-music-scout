@@ -17,8 +17,6 @@ export default defineNuxtPlugin(() => {
 			script.src = "https://sdk.scdn.co/spotify-player.js"
 			script.async = true
 			script.onload = () => {
-				// Some environments may call the global callback, others rely on onload.
-				// Resolve if the global callback wasn't invoked.
 				resolveReady()
 			}
 			script.onerror = (err) => {
