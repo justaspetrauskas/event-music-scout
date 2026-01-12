@@ -43,7 +43,7 @@ const musicPlayerStore = useMusicPlayerStore()
 const playlistStore = usePlaylistStore()
 const { toggleTrack } = usePlaylistStore()
 const { selectedTracks } = storeToRefs(playlistStore)
-const { togglePlayback, isPlayerVisible } = musicPlayerStore
+const { togglePlayback, showPlayer } = musicPlayerStore
 const { currentTrack, isPaused } = storeToRefs(musicPlayerStore)
 
 const props = defineProps<{

@@ -115,7 +115,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		currentTrack,
 		isPaused,
 		progress,
-		connect,
+		connectPlayer,
 		disconnect,
 		play,
 		pause,

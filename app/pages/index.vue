@@ -151,11 +151,6 @@ const handleAddToExistingPlaylist = async () => {
 	// handleOpenSpotifyOAuthWindow()
 }
 
-const handlePlayTrack = async (trackId: string) => {
-	await showPlayer()
-	await playTrack([trackId])
-}
-
 const onCloseModal = () => {
 	isPlaylistFormModalVisible.value = false
 }
