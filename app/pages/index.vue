@@ -157,8 +157,6 @@ const handlePlaySelected = async () => {
 
 	const existingToken = await getAccessToken()
 	if (existingToken) {
-		// isAddToExistinPlaylistModal.value = true
-		if (import.meta.env.DEV) console.log("play selected tracks", selectedTracks.value)
 		showPlayer()
 		await playTrack(Array.from(selectedTracks.value))
 		return existingToken

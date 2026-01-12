@@ -74,8 +74,17 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		player.value = null
 	}
 
-	const showPlayer = () => { isPlayerVisible.value = true }
-	const hidePlayer = () => { isPlayerVisible.value = false }
+	const showPlayer = async () => {
+		if (!isPlayerVisible.value) {
+			const token = await getAccessToken()
+			if (!token) return
+			await connect(token)
+			isPlayerVisible.value = true
+		}
+	}
+	const hidePlayer = () => {
+		isPlayerVisible.value = false
+	}
 
 	const play = async (track: Track) => {
 		if (player.value) {
@@ -88,7 +97,6 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const resume = async () => await player.value?.resume()
 	const togglePlayback = async () => await player.value?.togglePlay()
 	const nextTrack = async () => {
-		console.log("play next")
 		await player.value?.nextTrack()
 	}
 	const previousTrack = async () => await player.value?.previousTrack()

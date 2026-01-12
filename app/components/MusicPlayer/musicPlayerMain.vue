@@ -220,34 +220,6 @@ const playQueueTrack = async (qTrack: Track) => {
 		await addTracksToQueue([qTrack.uri])
 	}
 }
-
-async function waitForSpotifySDK(timeout = 5000) {
-	const start = Date.now()
-	while (Date.now() - start < timeout) {
-		if (typeof window !== "undefined" && (window as any).Spotify && (window as any).Spotify.Player) return true
-		// small delay
-
-		await new Promise(resolve => setTimeout(resolve, 250))
-	}
-	return false
-}
-
-const initPlayer = async () => {
-	const token = await getAccessToken()
-	if (!token) return
-
-	const sdkReady = await waitForSpotifySDK(7000)
-	if (!sdkReady) {
-		if (import.meta.env.DEV) console.warn("Spotify SDK not available yet")
-		return
-	}
-
-	await connect(token)
-}
-
-onMounted(() => {
-	initPlayer()
-})
 </script>
 
 <style scoped>
