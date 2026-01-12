@@ -108,16 +108,25 @@ export default defineEventHandler(async (event) => {
 	)
 
 	const successfulMatches = searchResults.filter(Boolean) as Artist[]
-	const failedMatches = searchResults.filter(r => !r || r.error)
+	const failedMatches = searchResults.filter(r => !r || r.error) as any[]
 
-	console.log(`Matching complete: ${successfulMatches.length}/${artistsQueryArr.length} found`)
+	// Exclude artists that lack images or top tracks from the final results
+	const filteredMatches = successfulMatches.filter(a => Array.isArray(a?.images) && a.images.length > 0 && Array.isArray(a?.tracks) && a.tracks.length > 0)
+	const removedDueToMissing = successfulMatches.filter(a => !filteredMatches.includes(a))
+
+	// Add removed items to failed list for reporting
+	removedDueToMissing.forEach(a => failedMatches.push({ error: 'missing_images_or_tracks', id: a?.id }))
+
+	if (process.env.NODE_ENV !== "production") {
+		console.log(`Matching complete: ${filteredMatches.length}/${artistsQueryArr.length} found (removed ${removedDueToMissing.length} missing images/tracks)`)
+	}
 
 	return {
-		matches: successfulMatches,
+		matches: filteredMatches,
 		total: artistsQueryArr.length,
 		failed: failedMatches.length,
-		data: successfulMatches.map(({ followers, genres, id, images, name, popularity, uri, tracks }: Artist) => ({
-			followers: followers.total.toLocaleString(),
+		data: filteredMatches.map(({ followers, genres, id, images, name, popularity, uri, tracks }: Artist) => ({
+			followers: followers?.total?.toLocaleString() ?? "0",
 			genres,
 			id,
 			images,
