@@ -26,11 +26,11 @@ export default defineEventHandler(async (event) => {
 	const anthropic = new Anthropic({ anthropicApiKey })
 	const aiPrompt = eventExtractionPrompt(pageText)
 
-	const response = await anthropic.messages.create({
-		model: "claude-sonnet-4-20250514",
-		messages: [{ role: "user", content: aiPrompt }],
-		max_tokens: 1024,
-	})
+	// const response = await anthropic.messages.create({
+	// 	model: "claude-sonnet-4-20250514",
+	// 	messages: [{ role: "user", content: aiPrompt }],
+	// 	max_tokens: 1024,
+	// })
 
 	const accessToken = await getAccessToken()
 
