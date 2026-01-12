@@ -1,13 +1,22 @@
-import type { Browser } from "puppeteer"
-import puppeteer from "puppeteer"
+import type { Browser } from "puppeteer-core"
+import puppeteer from "puppeteer-core"
 
 let browser: Browser | null = null
 
-async function getBrowser() {
-	if (!browser) {
-		browser = await puppeteer.launch({ headless: true })
-	}
-	return browser
+export async function getBrowser() {
+	return puppeteer.launch({
+		headless: true,
+		args: [
+			"--no-sandbox",
+			"--disable-setuid-sandbox",
+			"--disable-dev-shm-usage",
+			"--disable-accelerated-2d-canvas",
+			"--no-first-run",
+			"--no-zygote",
+			"--disable-gpu",
+			"--single-process",
+		],
+	})
 }
 
 export async function getEventPageText(url: string): Promise<string> {
