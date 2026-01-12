@@ -25,9 +25,23 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const previousTrackInQueue = ref(null)
 
 	const connect = async (accessToken: string) => {
-		if (!import.meta.client || !window.Spotify?.Player) return false
+		if (!import.meta.client) return false
 
-		player.value = new window.Spotify.Player({
+		const win = window as any
+		// If the SDK isn't available yet, wait for the plugin promise to resolve
+		if (!win.Spotify?.Player) {
+			if (win._spotifySDKReady && typeof win._spotifySDKReady.then === "function") {
+				try {
+					await win._spotifySDKReady
+				} catch (err) {
+					if (import.meta.env.DEV) console.error("Spotify SDK failed to load", err)
+					return false
+				}
+			}
+			if (!win.Spotify?.Player) return false
+		}
+
+		player.value = new win.Spotify.Player({
 			name: "Test Player",
 			getOAuthToken: cb => cb(accessToken),
 			volume: 0.5,
