@@ -37,7 +37,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 					await win._spotifySDKReady
 				}
 				catch (err) {
-					if (import.meta.env.DEV) console.error("Spotify SDK failed to load", err)
+					console.error("Spotify SDK failed to load", err)
 					return false
 				}
 			}
@@ -45,8 +45,8 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		}
 
 		player.value = new win.Spotify.Player({
-			name: "Test Player",
-			getOAuthToken: cb => cb(accessToken),
+			name: "Music Scout Player",
+			getOAuthToken: (cb: string) => cb(accessToken),
 			volume: 0.5,
 		})
 

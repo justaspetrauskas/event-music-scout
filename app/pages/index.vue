@@ -165,7 +165,7 @@ const handlePlaySelected = async () => {
 	// handleOpenSpotifyOAuthWindow()
 }
 
-const handlePlayTrack = async (trackId: string, artistName?: string, trackName?: string) => {
+const handlePlayTrack = async (trackId: string) => {
 	await showPlayer()
 	await playTrack([trackId])
 }
