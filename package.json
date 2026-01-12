@@ -7,9 +7,10 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "postinstall": "npx puppeteer install --path ./.cache/puppeteer",
+    "start": "node index.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",

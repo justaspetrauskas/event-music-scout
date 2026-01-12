@@ -1,56 +1,57 @@
 import Fuse from "fuse.js"
 import type { Artist } from "~~/types"
 
-function genreMatchesArtist(artistGenres: string[], targetGenres: string[]): boolean {
-	// If there are no target genres, consider it a match (no genre filter requested)
-	if (!targetGenres.length) return true
+function genreScore(artistGenres: string[], targetGenres: string[]): number {
+	if (!targetGenres.length) return 1.0 // Perfect if no genre filter
+	if (!artistGenres.length) return 0.0 // Worst if no genres
 
-	// If the artist has no genres, treat it as non-matching when the caller provided target genres.
-	if (!artistGenres.length) return false
+	let totalScore = 0
+	let matchCount = 0
 
-	const genreFuse = new Fuse(artistGenres, {
-		threshold: 0.4,
-		includeScore: true,
-	})
-
-	return targetGenres.some((targetGenre) => {
+	targetGenres.forEach((targetGenre) => {
+		const genreFuse = new Fuse(artistGenres, {
+			threshold: 0.3, // Tighter for scoring
+			includeScore: true,
+		})
 		const matches = genreFuse.search(targetGenre)
-		// Fuse score: lower is better. Accept reasonably good matches only.
-		return matches.some(match => typeof match.score === "number" && match.score < 0.5)
+		const bestMatch = matches.find(m => typeof m.score === "number" && m.score! < 0.6)
+		if (bestMatch?.score) {
+			totalScore += (1 - bestMatch.score) // Convert to 0-1 positive score
+			matchCount++
+		}
 	})
+
+	return matchCount > 0 ? totalScore / matchCount : 0
 }
 
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	// 1) Prefer exact name match across all returned items (avoid filtering by genre first)
+	// 1) Exact name match first (no genre filter)
 	const exactAcrossAll = items.find(a => a?.name?.toLowerCase().trim() === normalizedQuery)
 	if (exactAcrossAll) return exactAcrossAll
 
-	// 2) Filter by genre if target genres provided
-	const genreMatches = items.filter(artist => genreMatchesArtist(artist.genres, targetGenres))
+	// 2) Score ALL items by genre + name, no pre-filtering
+	const scoredItems = items
+		.filter(a => a?.name) // Must have name
+		.map((artist) => {
+			const genreScoreVal = genreScore(artist.genres || [], targetGenres)
+			const nameFuse = new Fuse([artist], {
+				keys: ["name"],
+				threshold: 0.5, // Allow slightly looser name matches
+				includeScore: true,
+			})
+			const nameResult = nameFuse.search(normalizedQuery)[0]
+			const nameScore = nameResult?.score ? (1 - nameResult.score) : 0
 
-	if (genreMatches.length === 0) {
-		// If no genre matches, fall back to fuzzy search over all items rather than giving up
-		const fallbackFuse = new Fuse(items, { keys: ["name"], includeScore: true, threshold: 0.45, minMatchCharLength: 2 })
-		const fallback = fallbackFuse.search(query)
-		return fallback[0]?.item ?? null
-	}
+			// Combined score: 70% name + 30% genre (adjust weights as needed)
+			const combinedScore = (nameScore * 0.7) + (genreScoreVal * 0.3)
 
-	// 3) Prefer exact match within genre-matched subset
-	const exactInGenre = genreMatches.find(a => a?.name?.toLowerCase().trim() === normalizedQuery)
-	if (exactInGenre) return exactInGenre
+			return { artist, score: combinedScore, genreScore: genreScoreVal, nameScore }
+		})
+		.sort((a, b) => b.score - a.score) // Descending (higher better)
 
-	// 4) Fuzzy search within genre matches
-	const fuse = new Fuse(genreMatches, {
-		keys: ["name"],
-		includeScore: true,
-		threshold: 0.35,
-		minMatchCharLength: 2,
-	})
-
-	const results = fuse.search(query)
-	return results[0]?.item ?? null
+	return scoredItems[0]?.artist ?? null
 }
 
 export default defineEventHandler(async (event) => {
@@ -117,14 +118,8 @@ export default defineEventHandler(async (event) => {
 	const filteredMatches = successfulMatches.filter(a => Array.isArray(a?.images) && a.images.length > 0 && Array.isArray(a?.tracks) && a.tracks.length > 0)
 	const removedDueToMissing = successfulMatches.filter(a => !filteredMatches.includes(a))
 
-	// Add removed items to failed list for reporting
 	removedDueToMissing.forEach(a => failedMatches.push({ error: "missing_images_or_tracks", id: a?.id }))
 
-	if (process.env.NODE_ENV !== "production") {
-		console.log(`Matching complete: ${filteredMatches.length}/${artistsQueryArr.length} found (removed ${removedDueToMissing.length} missing images/tracks)`)
-	}
-
-	// Build per-input mapping to help identify which input matched which artist (or failed)
 	const mapping = artistsQueryArr.map((inputArtist, idx) => {
 		const result = searchResults[idx]
 		if (!result) return { input: inputArtist, candidateCount: candidateCounts[idx] ?? 0, matched: null, error: result?.error ?? "no_match" }
