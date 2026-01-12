@@ -155,12 +155,8 @@ const handleAddToExistingPlaylist = async () => {
 const handlePlaySelected = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
 
-	const existingToken = await getAccessToken()
-	if (existingToken) {
-		await showPlayer()
-		await playTrack(Array.from(selectedTracks.value))
-		return existingToken
-	}
+	await showPlayer()
+	await playTrack(Array.from(selectedTracks.value))
 
 	// handleOpenSpotifyOAuthWindow()
 }

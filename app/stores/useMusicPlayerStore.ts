@@ -29,7 +29,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const previousTrackInQueue = ref<Track | null>(null)
 
 	const connect = async (accessToken: string): Promise<boolean> => {
-		if (!import.meta.client) return false
+		if (!import.meta.client || !window.Spotify?.Player) return false
 
 		const win = window as any
 		// If the SDK isn't available yet, wait for the plugin promise to resolve
@@ -97,6 +97,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		if (!isPlayerVisible.value) {
 			const token = await getAccessToken()
 			if (!token) return
+			console.log("token", token)
 			await connect(token)
 			isPlayerVisible.value = true
 		}
