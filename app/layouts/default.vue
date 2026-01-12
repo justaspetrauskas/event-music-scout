@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<SpeedInsights />
 		<header class="flex justify-end items-center w-full gap-4 p-4 fixed top-0">
 			<SpotifyLogin />
 			<ThemeToggle />
@@ -21,6 +22,7 @@
 <script lang="ts" setup>
 import ThemeToggle from "@/components/UI/ThemeToggle.vue"
 import SpotifyLogin from "@/components/User/SpotifyLogin.vue"
+import { SpeedInsights } from "@vercel/speed-insights/nuxt"
 </script>
 
 <style>
