@@ -66,7 +66,7 @@ const handleSelectArtist = (artist: Artist) => {
 	// check if selecting or deselecting
 	toggleArtist(artist)
 	// const trackUris = artist.tracks.map(track => track.uri)
-	console.log("select artist", getAllTrackUris.value)
+	if (import.meta.env.DEV) console.log("select artist", getAllTrackUris.value)
 	// emit("toggle-select", artist.id)
 }
 </script>

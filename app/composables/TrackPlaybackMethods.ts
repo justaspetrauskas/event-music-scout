@@ -4,7 +4,7 @@ export const useTrackPlaybackMethods = () => {
 	const { player, currentTrack } = storeToRefs(musicPlayerStore)
 
 	const playTrack = async (trackUri: string[]) => {
-		console.log("play track", trackUri, player.value.id)
+		if (import.meta.env.DEV) console.log("play track", trackUri, player.value?.id)
 		const existingToken = await getAccessToken()
 		await $fetch("/api/spotify/player/play-track", {
 			method: "PUT",
@@ -20,7 +20,7 @@ export const useTrackPlaybackMethods = () => {
 
 	const addTracksToQueue = async (trackUris: string[]) => {
 		if (!trackUris.length) return
-		console.log("player value", player.value.id)
+		if (import.meta.env.DEV) console.log("player value", player.value?.id)
 		const existingToken = await getAccessToken()
 		await $fetch("/api/spotify/player/add-to-queue", {
 			method: "POST",
@@ -46,7 +46,7 @@ export const useTrackPlaybackMethods = () => {
 	}
 
 	const nextTrack = async () => {
-		console.log("play next track")
+		if (import.meta.env.DEV) console.log("play next track")
 		const existingToken = await getAccessToken()
 		await $fetch("/api/spotify/player/next-track", {
 			method: "POST",

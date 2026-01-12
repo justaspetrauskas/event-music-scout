@@ -6,10 +6,10 @@ export default defineNuxtPlugin(() => {
 		document.head.appendChild(script)
 
 		script.onload = () => {
-			console.log("Spotify Web Playback SDK ready")
+			if (import.meta.env.DEV) console.log("Spotify Web Playback SDK ready")
 
 			// window.onSpotifyWebPlaybackSDKReady = () => {
-			// 	console.log("Spotify Web Playback SDK ready")
+			// 	if (import.meta.env.DEV) console.log("Spotify Web Playback SDK ready")
 			// }
 		}
 	}

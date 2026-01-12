@@ -104,7 +104,7 @@ const handleAnalyzeEvent = async (url: string) => {
 	updateRouteSearchQuery(url)
 
 	eventData.value = await analyzeEvent(url)
-	console.log("data", eventData.value)
+	if (import.meta.env.DEV) console.log("data", eventData.value)
 }
 
 const handlePlayAll = () => {
