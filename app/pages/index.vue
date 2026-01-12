@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen flex items-center flex-col justify-center">
+	<div class="min-h-screen flex items-center flex-col justify-center px-4 sm:px-6 lg:px-8">
 		<!-- <BackgroundEffect /> -->
 
 		<!-- <div class="container header-container">
@@ -20,7 +20,7 @@
 		<!-- empty state -->
 		<div
 			v-if="eventData"
-			class="max-w-4xl w-full mb-16"
+			class="max-w-4xl w-full mb-16 mx-auto px-2 sm:px-0"
 		>
 			<!-- <EventControls
 					:selected-count="selectedArtists.size"
@@ -40,16 +40,23 @@
 				@play-selected="handlePlaySelected"
 			/>
 
+			<!-- Loader / results count -->
+			<Loader
+				:loading="loading"
+				:count="artistsFound"
+			/>
+
 			<section class="overflow-hidden">
 				<ArtistCard
 					v-for="artist in eventData.artists"
 					:key="artist.id"
 					:artist="artist"
 					:selected="selectedArtists.has(artist.id)"
+					@play-track="handlePlayTrack"
 				/>
 			</section>
 
-			<MusicPlayer />
+			<MusicPlayer v-if="isPlayerVisible" />
 		</div>
 		<PlaylistFormModal
 			v-if="isPlaylistFormModalVisible"
@@ -66,9 +73,11 @@
 import TracksSelectionControl from "@/components/Track/TracksSelectionControl.vue"
 import PlaylistFormModal from "@/components/UI/PlaylistFormModal.vue"
 import MusicPlayer from "@/components/MusicPlayer/musicPlayerMain.vue"
+import Loader from "@/components/UI/Loader.vue"
 import type { EventData } from "~~/types"
 
 import { usePlaylistStore } from "~/stores/playlistStore"
+import { useMusicPlayerStore } from "~/stores/useMusicPlayerStore"
 import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
 
 const playlistStore = usePlaylistStore()
@@ -78,6 +87,10 @@ const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 const { analyzeEvent, loading } = useEventAnalyzer()
 const { handleOpenSpotifyOAuthWindow, getAccessToken } = useSpotifyOAuthMethods()
 const { addTracksToQueue, playTrack } = useTrackPlaybackMethods()
+
+const musicPlayerStore = useMusicPlayerStore()
+const { isPlayerVisible } = storeToRefs(musicPlayerStore)
+const { showPlayer } = musicPlayerStore
 
 const route = useRoute()
 const router = useRouter()
@@ -92,6 +105,8 @@ const allArtistsSelected = computed(() => {
 		? selectedArtists.value.size === eventData.value.artists.length
 		: false
 })
+
+const artistsFound = computed(() => eventData.value?.artists?.length ?? 0)
 
 const updateRouteSearchQuery = (query: string) => {
 	router.replace({
@@ -142,13 +157,19 @@ const handlePlaySelected = async () => {
 
 	const existingToken = await getAccessToken()
 	if (existingToken) {
-		// isAddToExistinPlaylistModalVisible.value = true
+		// isAddToExistinPlaylistModal.value = true
 		if (import.meta.env.DEV) console.log("play selected tracks", selectedTracks.value)
-		playTrack(Array.from(selectedTracks.value))
+		showPlayer()
+		await playTrack(Array.from(selectedTracks.value))
 		return existingToken
 	}
 
 	// handleOpenSpotifyOAuthWindow()
+}
+
+const handlePlayTrack = async (trackId: string, artistName?: string, trackName?: string) => {
+	showPlayer()
+	await playTrack([trackId])
 }
 
 const onCloseModal = () => {
@@ -175,6 +196,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 1rem;
 }
+/* loader is now a separate component */
 header {
 	display: flex;
 	align-items: flex-start;

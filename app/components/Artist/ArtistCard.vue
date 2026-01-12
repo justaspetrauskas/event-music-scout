@@ -4,7 +4,7 @@
 		:class="{ selected }"
 	>
 		<div
-			class="w-full flex items-center gap-4  hover:bg-muted/50 transition-colors duration-200 group"
+			class="w-full flex items-center gap-4 hover:bg-muted/50 transition-colors duration-200 group px-3 sm:px-4 py-2"
 			role="button"
 			@click.stop="setIsExpanded"
 		>

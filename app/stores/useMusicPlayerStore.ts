@@ -18,6 +18,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const isConnected = ref(false)
 	const isPaused = ref(false)
 	const isActive = ref(false)
+	const isPlayerVisible = ref(false)
 	const currentTrack = ref(null)
 	const progress = ref(0)
 	const nextTrackInQueue = ref(null)
@@ -73,6 +74,9 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		player.value = null
 	}
 
+	const showPlayer = () => { isPlayerVisible.value = true }
+	const hidePlayer = () => { isPlayerVisible.value = false }
+
 	const play = async (track: Track) => {
 		if (player.value) {
 			await player.value.togglePlay()
@@ -107,5 +111,8 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		togglePlayback,
 		nextTrackInQueue,
 		previousTrackInQueue,
+		isPlayerVisible,
+		showPlayer,
+		hidePlayer,
 	}
 })
