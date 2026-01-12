@@ -1,8 +1,13 @@
-import { chromium } from "playwright"
+import puppeteer from "puppeteer-core"
+import chromium from "@sparticuz/chromium"
 
-// Use Playwright to fetch all text content from the event page
 export async function getEventPageText(url: string): Promise<string> {
-	const browser = await chromium.launch()
+	const browser = await puppeteer.launch({
+		args: chromium.args,
+		defaultViewport: chromium.defaultViewport,
+		executablePath: await chromium.executablePath(),
+		headless: chromium.headless,
+	})
 	const page = await browser.newPage()
 	await page.goto(url, { waitUntil: "domcontentloaded" })
 	const text = await page.evaluate(() => document.body.innerText)
