@@ -115,7 +115,7 @@ export default defineEventHandler(async (event) => {
 	const removedDueToMissing = successfulMatches.filter(a => !filteredMatches.includes(a))
 
 	// Add removed items to failed list for reporting
-	removedDueToMissing.forEach(a => failedMatches.push({ error: 'missing_images_or_tracks', id: a?.id }))
+	removedDueToMissing.forEach(a => failedMatches.push({ error: "missing_images_or_tracks", id: a?.id }))
 
 	if (process.env.NODE_ENV !== "production") {
 		console.log(`Matching complete: ${filteredMatches.length}/${artistsQueryArr.length} found (removed ${removedDueToMissing.length} missing images/tracks)`)
