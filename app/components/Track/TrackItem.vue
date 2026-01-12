@@ -43,15 +43,11 @@ const musicPlayerStore = useMusicPlayerStore()
 const playlistStore = usePlaylistStore()
 const { toggleTrack } = usePlaylistStore()
 const { selectedTracks } = storeToRefs(playlistStore)
-const { togglePlayback } = musicPlayerStore
+const { togglePlayback, isPlayerVisible } = musicPlayerStore
 const { currentTrack, isPaused } = storeToRefs(musicPlayerStore)
 
 const props = defineProps<{
 	track: Track
-}>()
-
-const emit = defineEmits<{
-	play: []
 }>()
 
 const isPlaying = computed(() => currentTrack.value && currentTrack.value?.id === props.track.id && !isPaused.value)
@@ -66,6 +62,9 @@ const handleSelectTrack = () => {
 
 const handlePlayTrack = async () => {
 	if (!props.track.uri) return
+
+	// Always ensure player is visible and connected before playback
+	await showPlayer()
 
 	const isCurrent = currentTrack.value?.uri === props.track.uri
 

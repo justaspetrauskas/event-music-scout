@@ -30,10 +30,6 @@ defineProps<{
 	currentTrackId: string | null
 	isExpanded: boolean
 }>()
-
-const emit = defineEmits<{
-	"play-track": [trackId: string, trackName: string]
-}>()
 </script>
 
 <style>

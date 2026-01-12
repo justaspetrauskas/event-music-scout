@@ -52,7 +52,6 @@
 					:key="artist.id"
 					:artist="artist"
 					:selected="selectedArtists.has(artist.id)"
-					@play-track="handlePlayTrack"
 				/>
 			</section>
 
@@ -148,15 +147,6 @@ const handleAddToExistingPlaylist = async () => {
 		isAddToExistinPlaylistModalVisible.value = true
 		return existingToken
 	}
-
-	// handleOpenSpotifyOAuthWindow()
-}
-
-const handlePlaySelected = async () => {
-	if (!eventData.value || selectedTracks.value.size === 0) return
-
-	await showPlayer()
-	await playTrack(Array.from(selectedTracks.value))
 
 	// handleOpenSpotifyOAuthWindow()
 }

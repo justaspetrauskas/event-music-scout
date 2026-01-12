@@ -57,6 +57,7 @@ export default defineEventHandler(async (event) => {
 	const authorization = event.req.headers["authorization"] || event.req.headers["Authorization"]
 	const body = await readBody(event) as { artists: string[], genres: string[] }
 
+	console.log("body", body)
 	if (!body.artists?.length) {
 		throw createError({ statusCode: 400, message: "Artists array required" })
 	}

@@ -26,7 +26,6 @@
 			:tracks="artist.tracks"
 			:current-track-id="currentTrack"
 			:is-expanded="isExpanded"
-			@play-track="handlePlayTrack"
 		/>
 	</div>
 </template>
@@ -53,10 +52,6 @@ const emit = defineEmits<{
 	"toggle-select": [artistId: string]
 	"play-track": [trackId: string, artistName: string, trackName: string]
 }>()
-
-const handlePlayTrack = (trackId: string, trackName: string) => {
-	emit("play-track", trackId, props.artist.name, trackName)
-}
 
 const setIsExpanded = () => {
 	isExpanded.value = !isExpanded.value

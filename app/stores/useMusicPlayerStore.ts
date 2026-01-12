@@ -28,7 +28,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const nextTrackInQueue = ref<Track | null>(null)
 	const previousTrackInQueue = ref<Track | null>(null)
 
-	const connect = async (accessToken: string): Promise<boolean> => {
+	const connectPlayer = async (accessToken: string): Promise<boolean> => {
 		if (!import.meta.client || !window.Spotify?.Player) {
 			console.log("Not running in client or Spotify SDK not available")
 			return false
@@ -85,8 +85,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 		if (!isPlayerVisible.value) {
 			const token = await getAccessToken()
 			if (!token) return
-			console.log("token", token)
-			await connect(token)
+			await connectPlayer(token)
 			isPlayerVisible.value = true
 		}
 	}
