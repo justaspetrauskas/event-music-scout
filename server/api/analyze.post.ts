@@ -58,7 +58,6 @@ export default defineEventHandler(async (event) => {
 		},
 		body: { artists, genres } })
 
-	console.log("search results", searchResults.data)
 	await new Promise(resolve => setTimeout(resolve, 2000))
 
 	return {

@@ -2,7 +2,11 @@ import Fuse from "fuse.js"
 import type { Artist } from "~~/types"
 
 function genreMatchesArtist(artistGenres: string[], targetGenres: string[]): boolean {
-	if (!targetGenres.length || !artistGenres.length) return true
+	// If there are no target genres, consider it a match (no genre filter requested)
+	if (!targetGenres.length) return true
+
+	// If the artist has no genres, treat it as non-matching when the caller provided target genres.
+	if (!artistGenres.length) return false
 
 	const genreFuse = new Fuse(artistGenres, {
 		threshold: 0.4,
@@ -11,41 +15,42 @@ function genreMatchesArtist(artistGenres: string[], targetGenres: string[]): boo
 
 	return targetGenres.some((targetGenre) => {
 		const matches = genreFuse.search(targetGenre)
-		return matches.some(match => match.score! < 0.8)
+		// Fuse score: lower is better. Accept reasonably good matches only.
+		return matches.some(match => typeof match.score === "number" && match.score < 0.5)
 	})
 }
 
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
-	console.log("finding match for", query)
-	const genreMatches = items.filter(artist =>
-		genreMatchesArtist(artist.genres, targetGenres),
-	)
+	const normalizedQuery = query.toLowerCase().trim()
+
+	// 1) Prefer exact name match across all returned items (avoid filtering by genre first)
+	const exactAcrossAll = items.find(a => a?.name?.toLowerCase().trim() === normalizedQuery)
+	if (exactAcrossAll) return exactAcrossAll
+
+	// 2) Filter by genre if target genres provided
+	const genreMatches = items.filter(artist => genreMatchesArtist(artist.genres, targetGenres))
 
 	if (genreMatches.length === 0) {
-		console.log(`No genre matches for "${query}" (target: ${targetGenres.join(", ")})`)
-		return null
+		// If no genre matches, fall back to fuzzy search over all items rather than giving up
+		const fallbackFuse = new Fuse(items, { keys: ["name"], includeScore: true, threshold: 0.45, minMatchCharLength: 2 })
+		const fallback = fallbackFuse.search(query)
+		return fallback[0]?.item ?? null
 	}
 
-	const exactMatch = genreMatches.find(artist =>
+	// 3) Prefer exact match within genre-matched subset
+	const exactInGenre = genreMatches.find(a => a?.name?.toLowerCase().trim() === normalizedQuery)
+	if (exactInGenre) return exactInGenre
 
-		artist?.name?.toLowerCase().trim() === query.toLowerCase().trim(),
-	)
-	if (exactMatch) {
-		return exactMatch
-	}
-
+	// 4) Fuzzy search within genre matches
 	const fuse = new Fuse(genreMatches, {
 		keys: ["name"],
 		includeScore: true,
-		threshold: 0.3,
-		minMatchCharLength: 3,
+		threshold: 0.35,
+		minMatchCharLength: 2,
 	})
 
 	const results = fuse.search(query)
-	if (!results[0]) return null
-	const topResult = results[0]
-
-	return topResult.item
+	return results[0]?.item ?? null
 }
 
 export default defineEventHandler(async (event) => {
@@ -63,7 +68,7 @@ export default defineEventHandler(async (event) => {
 	const searchResults = await Promise.all(
 		artistsQueryArr.map(async (artistQuery: string) => {
 			const res = await fetch(
-				`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistQuery)}&type=artist&limit=20`,
+				`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistQuery)}&type=artist&limit=30`,
 				{
 					headers: {
 						"Authorization": authorization! as string,
