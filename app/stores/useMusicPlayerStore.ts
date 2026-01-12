@@ -14,6 +14,8 @@ export interface SpotifyPlayer {
 }
 
 export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
+	const { getAccessToken } = useSpotifyOAuthMethods()
+
 	const player = ref<Spotify.Player | null>(null)
 	const isConnected = ref(false)
 	const isPaused = ref(false)
