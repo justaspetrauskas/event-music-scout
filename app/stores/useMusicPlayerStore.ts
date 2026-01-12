@@ -29,7 +29,10 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const previousTrackInQueue = ref<Track | null>(null)
 
 	const connect = async (accessToken: string): Promise<boolean> => {
-		if (!import.meta.client || !window.Spotify?.Player) return false
+		if (!import.meta.client || !window.Spotify?.Player) {
+			console.log("Not running in client or Spotify SDK not available")
+			return false
+		}
 
 		const win = window as any
 		// If the SDK isn't available yet, wait for the plugin promise to resolve
