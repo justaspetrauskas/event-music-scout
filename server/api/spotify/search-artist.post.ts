@@ -117,6 +117,7 @@ export default defineEventHandler(async (event) => {
 					genres: artist.genres ?? [],
 				}))
 
+			console.log("Event genres:", eventGenres)
 			const bestMatch = findBestMatch(parsedArtists, artistQuery, eventGenres)
 			if (!bestMatch) return null
 
