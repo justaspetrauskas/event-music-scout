@@ -17,12 +17,18 @@ async function getAccessToken() {
 }
 
 export default defineEventHandler(async (event) => {
+	const config = useRuntimeConfig()
 	const { anthropicApiKey } = useRuntimeConfig()
 	const { url } = await readBody(event)
 
 	const pageText = await $fetch("/api/scrape", {
+		baseURL: config.public.scraperUrl,
 		method: "POST",
-		body: { url } })
+		headers: {
+			Authorization: `Bearer ${config.scraperApiKey}`,
+		},
+		body: { url },
+	})
 	if (!pageText.success) return null
 
 	const anthropic = new Anthropic({ anthropicApiKey })

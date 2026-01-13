@@ -17,9 +17,11 @@ export default defineNuxtConfig({
 		spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
 		spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 		spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI,
+		scraperApiKey: "12345",
 		public: {
 			spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI || "http://127.0.0.1:3000",
 			spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
+			scraperUrl: "http://localhost:3001",
 		},
 	},
 	devServer: {
