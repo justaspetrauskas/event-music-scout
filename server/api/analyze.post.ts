@@ -1,5 +1,4 @@
 import { Anthropic } from "@anthropic-ai/sdk"
-import { getEventPageText } from "./lib/scraper"
 import { eventExtractionPrompt } from "./lib/extractionPrompt"
 import { testResponse } from "./lib/testResponse"
 
@@ -19,18 +18,21 @@ async function getAccessToken() {
 
 export default defineEventHandler(async (event) => {
 	const { anthropicApiKey } = useRuntimeConfig()
-
 	const { url } = await readBody(event)
-	const pageText = await getEventPageText(url)
+
+	const pageText = await $fetch("/api/scrape", {
+		method: "POST",
+		body: { url } })
+	if (!pageText.success) return null
 
 	const anthropic = new Anthropic({ anthropicApiKey })
-	const aiPrompt = eventExtractionPrompt(pageText)
+	const aiPrompt = eventExtractionPrompt(pageText.text as string)
 
-	// const response = await anthropic.messages.create({
-	// 	model: "claude-sonnet-4-20250514",
-	// 	messages: [{ role: "user", content: aiPrompt }],
-	// 	max_tokens: 1024,
-	// })
+	const response = await anthropic.messages.create({
+		model: "claude-sonnet-4-20250514",
+		messages: [{ role: "user", content: aiPrompt }],
+		max_tokens: 1024,
+	})
 
 	const accessToken = await getAccessToken()
 
@@ -60,11 +62,5 @@ export default defineEventHandler(async (event) => {
 		location: extracted.location,
 		url,
 		artists: searchResults.data,
-		_searchDebug: {
-			mapping: searchResults.mapping ?? null,
-			matches: Array.isArray(searchResults.matches) ? searchResults.matches.length : null,
-			failed: searchResults.failed ?? null,
-			totalRequested: Array.isArray(artists) ? artists.length : null,
-		},
 	}
 })

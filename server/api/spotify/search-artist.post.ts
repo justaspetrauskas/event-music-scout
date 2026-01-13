@@ -128,7 +128,6 @@ export default defineEventHandler(async (event) => {
 			input: inputArtist,
 			candidateCount: candidateCounts[idx] ?? 0,
 			matched: matched ? { id: matched.id, name: matched.name } : null,
-			raw: process.env.NODE_ENV !== "production" ? result : undefined,
 			error: (!result || (result as any).error) ? (result as any).error : undefined,
 		}
 	})

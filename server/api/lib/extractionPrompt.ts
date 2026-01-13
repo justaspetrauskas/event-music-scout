@@ -1,11 +1,12 @@
-export function eventExtractionPrompt(pageText: string) {
+export function eventExtractionPrompt(url: string) {
 	return `
-        Here is the full text from a music event website:
+        You are a music event extraction agent. :
         """
-        ${pageText}
+        **URL TO SCRAPE:** ${url}
         """
-        Extract and return ONLY valid JSON (no markdown, no code block). 
-        Use this schema:
+        1. Visit and scrape the provided URL 
+        2. Extract the PRIMARY event being promoted/advertised
+        3. Return VALID JSON matching this exact schema - no markdown, no explanations:
         {
         "name": "",
         "date": "",
