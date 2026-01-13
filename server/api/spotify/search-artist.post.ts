@@ -1,10 +1,5 @@
 import Fuse from "fuse.js"
-import type { Artist } from "~~/types"
-
-interface Artist {
-	name: string
-	genres?: string[]
-}
+import type { Artist } from "@@/types"
 
 interface ScoredArtist {
 	artist: Artist
