@@ -16,28 +16,25 @@ function genreScore(artistGenres: string[], targetGenres: string[]): number {
 	if (!targetGenres.length) return 1.0
 	if (!artistGenres.length) return 0.0
 
-	const normalizedArtist = artistGenres.map(normalizeGenre)
-	const normalizedTarget = targetGenres.map(normalizeGenre)
 	let totalScore = 0
 	let matchCount = 0
 
-	normalizedTarget.forEach((target) => {
-		// 1. Exact match (weight 1.0)
-		if (normalizedArtist.includes(target)) {
+	targetGenres.forEach((target) => {
+		// REQUIRE exact prefix/suffix OR very tight fuzzy (0.15 max)
+		const exactPrefix = artistGenres.some(g =>
+			g.toLowerCase().startsWith(target.toLowerCase())
+			|| target.toLowerCase().startsWith(g.toLowerCase()),
+		)
+		if (exactPrefix) {
 			totalScore += 1.0
 			matchCount++
 			return
 		}
 
-		// 2. Strict fuzzy (only very close variants, threshold 0.2)
-		const genreFuse = new Fuse(normalizedArtist, {
-			threshold: 0.2, // Much tighter
-			includeScore: true,
-		})
-		const matches = genreFuse.search(target)
-		const bestMatch = matches[0]
-		if (bestMatch?.score && bestMatch.score < 0.3) {
-			totalScore += (1 - bestMatch.score) * 0.7 // Penalize fuzzy
+		const genreFuse = new Fuse(artistGenres, { threshold: 0.15, includeScore: true })
+		const best = genreFuse.search(target)[0]
+		if (best?.score && best.score < 0.2) { // 0.2 max, no 0.6!
+			totalScore += (1 - best.score) * 0.5 // Heavily penalize fuzzy
 			matchCount++
 		}
 	})
