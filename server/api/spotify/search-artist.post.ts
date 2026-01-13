@@ -1,22 +1,48 @@
 import Fuse from "fuse.js"
 import type { Artist } from "~~/types"
 
-function genreScore(artistGenres: string[], targetGenres: string[]): number {
-	if (!targetGenres.length) return 1.0 // Perfect if no genre filter
-	if (!artistGenres.length) return 0.0 // Worst if no genres
+interface Artist {
+	name: string
+	genres?: string[]
+}
 
+interface ScoredArtist {
+	artist: Artist
+	score: number
+	genreScore: number
+	nameScore: number
+}
+
+function normalizeGenre(genre: string): string {
+	return genre.toLowerCase().trim().replace(/[-\s]+/g, " ").replace(/\s+/g, " ")
+}
+
+function genreScore(artistGenres: string[], targetGenres: string[]): number {
+	if (!targetGenres.length) return 1.0
+	if (!artistGenres.length) return 0.0
+
+	const normalizedArtist = artistGenres.map(normalizeGenre)
+	const normalizedTarget = targetGenres.map(normalizeGenre)
 	let totalScore = 0
 	let matchCount = 0
 
-	targetGenres.forEach((targetGenre) => {
-		const genreFuse = new Fuse(artistGenres, {
-			threshold: 0.3, // Tighter for scoring
+	normalizedTarget.forEach((target) => {
+		// 1. Exact match (weight 1.0)
+		if (normalizedArtist.includes(target)) {
+			totalScore += 1.0
+			matchCount++
+			return
+		}
+
+		// 2. Strict fuzzy (only very close variants, threshold 0.2)
+		const genreFuse = new Fuse(normalizedArtist, {
+			threshold: 0.2, // Much tighter
 			includeScore: true,
 		})
-		const matches = genreFuse.search(targetGenre)
-		const bestMatch = matches.find(m => typeof m.score === "number" && m.score! < 0.6)
-		if (bestMatch?.score) {
-			totalScore += (1 - bestMatch.score) // Convert to 0-1 positive score
+		const matches = genreFuse.search(target)
+		const bestMatch = matches[0]
+		if (bestMatch?.score && bestMatch.score < 0.3) {
+			totalScore += (1 - bestMatch.score) * 0.7 // Penalize fuzzy
 			matchCount++
 		}
 	})
@@ -27,29 +53,35 @@ function genreScore(artistGenres: string[], targetGenres: string[]): number {
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	// 1) Exact name match first (no genre filter)
-	const exactAcrossAll = items.find(a => a?.name?.toLowerCase().trim() === normalizedQuery)
-	if (exactAcrossAll) return exactAcrossAll
+	// 1. Exact name match (ignores genres)
+	const exactMatch = items.find(a => normalizeGenre(a?.name || "") === normalizedQuery)
+	if (exactMatch) return exactMatch
 
-	// 2) Score ALL items by genre + name, no pre-filtering
-	const scoredItems = items
-		.filter(a => a?.name) // Must have name
-		.map((artist) => {
-			const genreScoreVal = genreScore(artist.genres || [], targetGenres)
-			const nameFuse = new Fuse([artist], {
-				keys: ["name"],
-				threshold: 0.5, // Allow slightly looser name matches
-				includeScore: true,
-			})
-			const nameResult = nameFuse.search(normalizedQuery)[0]
-			const nameScore = nameResult?.score ? (1 - nameResult.score) : 0
+	// 2. Name pre-filter (must have decent name similarity first)
+	const nameFuse = new Fuse(items.filter(a => a?.name), {
+		keys: ["name"],
+		threshold: 0.4, // Stricter name filter
+		includeScore: true,
+	})
+	const nameMatches = nameFuse.search(normalizedQuery)
+	const candidates = nameMatches
+		.filter((m): m is Fuse.FuseResult<Artist> => m.score !== undefined && m.score < 0.5)
+		.slice(0, 20) // Limit to top name candidates
 
-			// Combined score: 70% name + 30% genre (adjust weights as needed)
-			const combinedScore = (nameScore * 0.7) + (genreScoreVal * 0.3)
+	if (!candidates.length) return null
 
-			return { artist, score: combinedScore, genreScore: genreScoreVal, nameScore }
-		})
-		.sort((a, b) => b.score - a.score) // Descending (higher better)
+	// 3. Score candidates by genre + name
+	const scoredItems: ScoredArtist[] = candidates.map(({ item: artist }) => {
+		const genreScoreVal = genreScore(artist.genres || [], targetGenres)
+		const nameResult = nameFuse.search(normalizedQuery).find(r => r.item === artist)
+		const nameScore = nameResult?.score ? (1 - nameResult.score) : 0
+
+		// Dynamic weighting: name dominant unless perfect genre match
+		const weightName = genreScoreVal < 0.8 ? 0.9 : 0.6
+		const combinedScore = (nameScore * weightName) + (genreScoreVal * (1 - weightName))
+
+		return { artist, score: combinedScore, genreScore: genreScoreVal, nameScore }
+	}).sort((a, b) => b.score - a.score)
 
 	return scoredItems[0]?.artist ?? null
 }
@@ -58,7 +90,6 @@ export default defineEventHandler(async (event) => {
 	const authorization = event.req.headers["authorization"] || event.req.headers["Authorization"]
 	const body = await readBody(event) as { artists: string[], genres: string[] }
 
-	console.log("body", body)
 	if (!body.artists?.length) {
 		throw createError({ statusCode: 400, message: "Artists array required" })
 	}
@@ -66,12 +97,10 @@ export default defineEventHandler(async (event) => {
 	const artistsQueryArr = body.artists
 	const eventGenres = body.genres || []
 
-	// Search for each artist and find best genre match
 	const candidateCounts: number[] = []
 	const searchResults = await Promise.all(
 		artistsQueryArr.map(async (artistQuery: string) => {
-			const res = await fetch(
-				`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistQuery)}&type=artist&limit=30`,
+			const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistQuery)}&type=artist&limit=30`,
 				{
 					headers: {
 						"Authorization": authorization! as string,
