@@ -16,24 +16,21 @@
 
 		<div class="relative w-full">
 			<div class="flex items-center gap-3 overflow-hidden rounded-xl shadow-md w-full bg-slate-50 dark:bg-gray-900 duration-300 dark:shadow-spotify/50">
-				<Link
-					class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground"
-				/>
+				<Link class="w-5 h-5 m-4 flex-shrink-0 text-muted-foreground" />
 
 				<input
 					v-model="eventUrl"
 					type="text"
 					placeholder="Paste event URL"
-					class="flex-1 bg-transparent outline-none placeholder:text-muted-foreground text-foreground text-lg border-none dark:text-slate-50"
+					class="flex-1 min-w-0 px-2 bg-transparent outline-none placeholder:text-muted-foreground text-foreground text-base sm:text-lg border-none dark:text-slate-50"
 					@keyup.enter="handleAnalyze"
 				>
 
 				<button
-					class="px-6 py-4 border-l border-spotify rounded-r-lg font-medium transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap
-					bg-spotify text-white shadow-lg shadow-spotify
-					disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
-					border-spotify/90
-					"
+					class="flex-shrink-0 px-3 py-3 sm:px-6 sm:py-4 border-l border-spotify rounded-r-lg font-medium transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1.2)] whitespace-nowrap min-w-[100px]
+        bg-spotify text-white shadow-lg shadow-spotify
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
+        border-spotify/90"
 					:aria-busy="loading"
 					:disabled="loading"
 					@click="handleAnalyze"

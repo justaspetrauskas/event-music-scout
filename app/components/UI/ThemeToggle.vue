@@ -8,7 +8,7 @@
   dark:backdrop-blur-sm dark:bg-black/20 dark:border-white/20 dark:hover:border-white/40
   shadow-lg dark:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:dark:shadow-[0_0_30px_rgba(59,130,246,0.5)]
   dark:ring-2 dark:ring-spotify/30 hover:dark:ring-spotify/50 dark:ring-offset-1 dark:ring-offset-transparent
-  transition-all duration-300 group overflow-hidden"
+  transition-all duration-300 group overflow-hidden pointer-events-auto"
 		@click="toggleTheme"
 	>
 		<Sun

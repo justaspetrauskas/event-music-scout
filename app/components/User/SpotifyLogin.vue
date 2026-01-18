@@ -6,12 +6,12 @@
 			<div
 				class="w-full rounded-full bg-none shadow-lg hover:shadow-xl z-0 overflow-hidden gap-4
         dark:shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:dark:shadow-[0_0_30px_rgba(59,130,246,0.6)]
-        transition-all duration-300"
+        transition-all duration-300 pointer-events-auto"
 			>
 				<button
 					v-if="user"
 					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 pr-2
-        cursor-pointer p-0"
+        cursor-pointer p-0 pointer-events-auto"
 					@click="showDropdown = !showDropdown"
 				>
 					<img
@@ -28,7 +28,7 @@
 				<button
 					v-else
 					class="flex items-center justify-center relative z-10 bg-card hover:bg-accent/20 gap-4 pr-4
-        cursor-pointer p-0"
+        cursor-pointer p-0 pointer-events-auto"
 					@click="login()"
 				>
 					<img
@@ -47,7 +47,7 @@
 				@click="showDropdown = false"
 			>
 				<button
-					class="w-full text-left px-4 py-2 text-sm hover:bg-accent rounded-lg transition-colors"
+					class="w-full text-left px-4 py-2 text-sm hover:bg-accent rounded-lg transition-colors pointer-events-auto"
 					@click="handleLogout()"
 				>
 					Logout

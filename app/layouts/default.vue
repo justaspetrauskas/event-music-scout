@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="pointer-events-none">
 		<SpeedInsights />
 		<header class="flex justify-end items-center w-full gap-4 p-4 fixed top-0">
 			<SpotifyLogin />
