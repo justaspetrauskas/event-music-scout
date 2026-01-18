@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
 :root {
   --base-font-size: 16px;
   --color-primary: 0 0% 0%;
@@ -41,7 +42,7 @@
  }
 
  html {
-    font-size: var(--font-size);
+    font-size: var(--base-font-size);
   }
   
 
@@ -88,6 +89,16 @@
     line-height: 1.5;
   }
 
+  @media (width <= 400px) {
+    :root {
+      --base-font-size: 14px;
+    }
+    
+    h2 {
+      font-size: 2.5rem;
+    }
+  }
+
 }
 
     /* animations */
@@ -109,6 +120,6 @@
     }
 
   }
-
-
 }
+
+

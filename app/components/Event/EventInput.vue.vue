@@ -1,6 +1,6 @@
 <template>
 	<section
-		class="mx-auto w-full h-[30vh] flex items-center flex-col justify-center transition-all duration-500 ease-in-out"
+		class="mx-auto w-full h-[30vh] flex items-center flex-col justify-center transition-all duration-500 ease-in-out text-center"
 		:class="{ 'h-screen -translate-y-12': !dataLoaded }"
 	>
 		<div
