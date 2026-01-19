@@ -40,37 +40,29 @@ function genreScore(artistGenres: string[], targetGenres: string[]): number {
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	// 1. EXACT name match first
+	// 1. Exact name match first (order independent)
 	const exactMatch = items.find(a => normalizeGenre(a?.name || "") === normalizedQuery)
 	if (exactMatch) return exactMatch
 
-	// 2. ONLY genre-qualified artists
-	const genreQualified = items.filter((a) => {
-		const gScore = genreScore(a.genres || [], targetGenres)
-		return gScore > 0.3
-	})
+	// 2. Score EVERY candidate independently - NO Spotify ordering bias
+	const allScored = items.map((artist) => {
+		const gScore = genreScore(artist.genres || [], targetGenres)
+		if (gScore === 0) return null // Instant reject
 
-	if (!genreQualified.length) return null
+		const nameFuse = new Fuse([artist], { keys: ["name"], threshold: 0.5, includeScore: true })
+		const nameResult = nameFuse.search(normalizedQuery)[0]
+		const nScore = nameResult?.score ? (1 - nameResult.score) : 0
 
-	// 3. Name search ONLY within genre-qualified
-	const nameFuse = new Fuse(genreQualified, {
-		keys: ["name"],
-		threshold: 0.4,
-		includeScore: true,
-	})
+		const finalScore = (gScore * 0.9) + (nScore * 0.1)
+		return { artist, gScore, nScore, finalScore, nameResult }
+	}).filter(Boolean) as ({ artist: Artist, gScore: number, nScore: number, finalScore: number } | null)[]
 
-	const results = nameFuse.search(normalizedQuery)
-	if (!results.length) return null
+	// 3. Sort purely by FINAL score (no Spotify order influence)
+	const sorted = allScored
+		.filter(s => s!.finalScore > 0.6)
+		.sort((a, b) => b!.finalScore - a!.finalScore)
 
-	// 4. Pick highest genre score among top name matches
-	const topCandidates = results.slice(0, 3).map(r => r.item)
-	const best = topCandidates.reduce((best, current) => {
-		const currentGenreScore = genreScore(current.genres || [], targetGenres)
-		const bestGenreScore = genreScore(best.genres || [], targetGenres)
-		return currentGenreScore > bestGenreScore ? current : best
-	})
-
-	return best
+	return sorted[0]?.artist ?? null
 }
 
 export default defineEventHandler(async (event) => {
