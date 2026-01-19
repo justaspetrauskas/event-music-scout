@@ -14,52 +14,69 @@ function genreScore(artistGenres: string[], targetGenres: string[]): number {
 		.flat()
 		.filter(word => word.length > 2)
 
-	// ULTRA-STRICT: Artist must have EXACT genre word overlap
-	const hasExactGenreMatch = artistGenres.some((ag) => {
+	// CRITICAL: EVERY artist genre must match event OR be neutral
+	const allArtistGenresMatch = artistGenres.every((ag) => {
 		const normAg = normalizeGenre(ag)
-		return normalizedTargetWords.some(targetWord =>
+		// Must contain event genre word OR be genre-neutral (no strong genre identity)
+		const isNeutralGenre = normAg.length < 4 || ["pop", "rock", "electronic"].includes(normAg)
+		const hasEventGenreWord = normalizedTargetWords.some(targetWord =>
 			normAg.includes(targetWord) || targetWord.includes(normAg),
 		)
+		return isNeutralGenre || hasEventGenreWord
 	})
 
-	if (!hasExactGenreMatch) return 0.0
+	if (!allArtistGenresMatch) return 0.0
 
-	let score = 0
+	// Count positive matches among valid artists
+	let matches = 0
 	targetGenres.forEach((target) => {
 		const targetWords = normalizeGenre(target).split(" ")
 		artistGenres.forEach((ag) => {
 			const agWords = normalizeGenre(ag).split(" ")
-			const matches = targetWords.filter(word => agWords.includes(word)).length
-			score += matches * 2
+			const wordMatches = targetWords.filter(word => agWords.includes(word)).length
+			matches += wordMatches
 		})
 	})
 
-	return Math.min(score / targetGenres.length, 1.0)
+	return Math.min(matches / targetGenres.length, 1.0)
 }
 
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	const exactMatch = items.find(a => normalizeGenre(a?.name || "") === normalizedQuery)
-	if (exactMatch) return exactMatch
+	// Find ALL genre-qualified + name-similar artists
+	const qualified = items
+		.map((artist) => {
+			const gScore = genreScore(artist.genres || [], targetGenres)
+			if (gScore === 0) return null
 
-	const allScored = items.map((artist) => {
-		const gScore = genreScore(artist.genres || [], targetGenres)
-		if (gScore === 0) return null // Instant reject
+			const nameFuse = new Fuse([artist], { keys: ["name"], threshold: 0.5 })
+			const nameResult = nameFuse.search(normalizedQuery)[0]
+			if (!nameResult || nameResult.score > 0.6) return null
 
-		const nameFuse = new Fuse([artist], { keys: ["name"], threshold: 0.5, includeScore: true })
-		const nameResult = nameFuse.search(normalizedQuery)[0]
-		const nScore = nameResult?.score ? (1 - nameResult.score) : 0
+			return { artist, gScore, nScore: 1 - nameResult.score! }
+		})
+		.filter(Boolean) as { artist: Artist, gScore: number, nScore: number }[]
 
-		const finalScore = (gScore * 0.9) + (nScore * 0.1)
-		return { artist, gScore, nScore, finalScore, nameResult }
-	}).filter(Boolean) as ({ artist: Artist, gScore: number, nScore: number, finalScore: number } | null)[]
+	if (!qualified.length) return null
 
-	const sorted = allScored
-		.filter(s => s!.finalScore > 0.6)
-		.sort((a, b) => b!.finalScore - a!.finalScore)
+	// Group by exact name for duplicates
+	const nameGroups = qualified.reduce((groups, item) => {
+		const nameKey = normalizeGenre(item.artist.name)
+		if (!groups[nameKey]) groups[nameKey] = []
+		groups[nameKey].push(item)
+		return groups
+	}, {} as Record<string, typeof qualified>)
 
-	return sorted[0]?.artist ?? null
+	// Return top match OR all duplicates with same name
+	const topGroup = Object.values(nameGroups)
+		.map(group => group.reduce((best, curr) => curr.gScore > best.gScore ? curr : best))
+		.sort((a, b) => b.gScore - a.gScore)[0]
+
+	const sameNameMatches = nameGroups[normalizeGenre(topGroup.artist.name)]
+	return sameNameMatches.length > 1
+		? sameNameMatches.map(m => m.artist) // Return array for duplicates
+		: topGroup.artist
 }
 
 export default defineEventHandler(async (event) => {
