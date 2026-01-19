@@ -1,13 +1,6 @@
 import Fuse from "fuse.js"
 import type { Artist } from "@@/types"
 
-interface ScoredArtist {
-	artist: Artist
-	score: number
-	genreScore: number
-	nameScore: number
-}
-
 function normalizeGenre(genre: string): string {
 	return genre.toLowerCase().trim().replace(/[-\s]+/g, " ").replace(/\s+/g, " ")
 }
