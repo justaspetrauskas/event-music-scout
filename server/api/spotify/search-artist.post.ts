@@ -40,11 +40,9 @@ function genreScore(artistGenres: string[], targetGenres: string[]): number {
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	// 1. Exact name match first (order independent)
 	const exactMatch = items.find(a => normalizeGenre(a?.name || "") === normalizedQuery)
 	if (exactMatch) return exactMatch
 
-	// 2. Score EVERY candidate independently - NO Spotify ordering bias
 	const allScored = items.map((artist) => {
 		const gScore = genreScore(artist.genres || [], targetGenres)
 		if (gScore === 0) return null // Instant reject
@@ -57,7 +55,6 @@ function findBestMatch(items: Artist[], query: string, targetGenres: string[]): 
 		return { artist, gScore, nScore, finalScore, nameResult }
 	}).filter(Boolean) as ({ artist: Artist, gScore: number, nScore: number, finalScore: number } | null)[]
 
-	// 3. Sort purely by FINAL score (no Spotify order influence)
 	const sorted = allScored
 		.filter(s => s!.finalScore > 0.6)
 		.sort((a, b) => b!.finalScore - a!.finalScore)
