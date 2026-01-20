@@ -54,8 +54,6 @@ export default defineEventHandler(async (event) => {
 	const eventGenres = body.genres || []
 	const candidateCounts: number[] = []
 
-	console.log("Event genres:", eventGenres)
-
 	const searchResults = await Promise.all(
 
 		artistsQueryArr.map(async (artistQuery: string) => {
