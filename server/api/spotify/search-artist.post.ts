@@ -1,82 +1,45 @@
 import Fuse from "fuse.js"
 import type { Artist } from "@@/types"
 
-function normalizeGenre(genre: string): string {
-	return genre.toLowerCase().trim().replace(/[-\s]+/g, " ").replace(/\s+/g, " ")
-}
-
 function genreScore(artistGenres: string[], targetGenres: string[]): number {
-	if (!targetGenres.length) return 1.0
-	if (!artistGenres.length) return 0.1
+	if (!artistGenres.length) return 0
+	if (!targetGenres.length) return 1
 
-	const normalizedTargetWords = targetGenres
-		.map(g => normalizeGenre(g).split(" "))
-		.flat()
-		.filter(word => word.length > 2)
-
-	// CRITICAL: EVERY artist genre must match event OR be neutral
-	const allArtistGenresMatch = artistGenres.every((ag) => {
-		const normAg = normalizeGenre(ag)
-		// Must contain event genre word OR be genre-neutral (no strong genre identity)
-		const isNeutralGenre = normAg.length < 4 || ["pop", "rock", "electronic"].includes(normAg)
-		const hasEventGenreWord = normalizedTargetWords.some(targetWord =>
-			normAg.includes(targetWord) || targetWord.includes(normAg),
-		)
-		return isNeutralGenre || hasEventGenreWord
+	const fuse = new Fuse(targetGenres, {
+		threshold: 0.4,
+		includeScore: true,
+		ignoreLocation: true,
+		minMatchCharLength: 4,
 	})
 
-	if (!allArtistGenresMatch) return 0.0
-
-	// Count positive matches among valid artists
-	let matches = 0
-	targetGenres.forEach((target) => {
-		const targetWords = normalizeGenre(target).split(" ")
-		artistGenres.forEach((ag) => {
-			const agWords = normalizeGenre(ag).split(" ")
-			const wordMatches = targetWords.filter(word => agWords.includes(word)).length
-			matches += wordMatches
-		})
+	const scores = artistGenres.map((genre) => {
+		const result = fuse.search(genre)[0]
+		return result ? 1 - result.score! : 0
 	})
 
-	return Math.min(matches / targetGenres.length, 1.0)
+	return scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
 }
 
 function findBestMatch(items: Artist[], query: string, targetGenres: string[]): Artist | null {
 	const normalizedQuery = query.toLowerCase().trim()
 
-	// Find ALL genre-qualified + name-similar artists
 	const qualified = items
 		.map((artist) => {
 			const gScore = genreScore(artist.genres || [], targetGenres)
 			if (gScore === 0) return null
 
-			const nameFuse = new Fuse([artist], { keys: ["name"], threshold: 0.5 })
+			const nameFuse = new Fuse([artist], { keys: ["name"], includeScore: true, isCaseSensitive: false, threshold: 0.5 })
 			const nameResult = nameFuse.search(normalizedQuery)[0]
-			if (!nameResult || nameResult.score > 0.6) return null
 
-			return { artist, gScore, nScore: 1 - nameResult.score! }
-		})
-		.filter(Boolean) as { artist: Artist, gScore: number, nScore: number }[]
+			const rawScore = nameResult?.score ?? 1
+			const nScore = Number((1 - rawScore).toFixed(4))
+			if (nScore < 0.8) return null
+
+			return { artist, gScore, nScore }
+		}).filter(Boolean)
 
 	if (!qualified.length) return null
-
-	// Group by exact name for duplicates
-	const nameGroups = qualified.reduce((groups, item) => {
-		const nameKey = normalizeGenre(item.artist.name)
-		if (!groups[nameKey]) groups[nameKey] = []
-		groups[nameKey].push(item)
-		return groups
-	}, {} as Record<string, typeof qualified>)
-
-	// Return top match OR all duplicates with same name
-	const topGroup = Object.values(nameGroups)
-		.map(group => group.reduce((best, curr) => curr.gScore > best.gScore ? curr : best))
-		.sort((a, b) => b.gScore - a.gScore)[0]
-
-	const sameNameMatches = nameGroups[normalizeGenre(topGroup.artist.name)]
-	return sameNameMatches.length > 1
-		? sameNameMatches.map(m => m.artist) // Return array for duplicates
-		: topGroup.artist
+	return qualified.sort((a, b) => (b.gScore + b.nScore) - (a.gScore + a.nScore)).map(q => q.artist)[0]
 }
 
 export default defineEventHandler(async (event) => {
@@ -94,9 +57,10 @@ export default defineEventHandler(async (event) => {
 	console.log("Event genres:", eventGenres)
 
 	const searchResults = await Promise.all(
+
 		artistsQueryArr.map(async (artistQuery: string) => {
 			try {
-				const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistQuery)}&type=artist&limit=30`, {
+				const res = await fetch(`https://api.spotify.com/v1/search?q=artist:${encodeURIComponent(artistQuery)}&type=artist&limit=30`, {
 					headers: {
 						"Authorization": authorization! as string,
 						"Content-Type": "application/json",
@@ -119,11 +83,6 @@ export default defineEventHandler(async (event) => {
 						images: artist.images ?? [],
 						genres: artist.genres ?? [],
 					}))
-
-				console.log("Artist query:", artistQuery)
-				parsedArtists.forEach((a) => {
-					console.log(`Candidate: ${a.name} | Genres: ${a.genres.join(", ")}`)
-				})
 
 				const bestMatch = findBestMatch(parsedArtists, artistQuery, eventGenres)
 				if (!bestMatch) return { error: "no_good_match", inputArtist: artistQuery }

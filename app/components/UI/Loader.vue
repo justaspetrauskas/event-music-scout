@@ -1,28 +1,40 @@
 <template>
-  <div class="loader-wrap" role="status">
-    <div v-if="loading" class="flex items-center gap-2 text-sm text-gray-400">
-      <span class="spinner" aria-hidden="true"></span>
-      <span>{{ text }}</span>
-    </div>
+	<div
+		class="loader-wrap"
+		role="status"
+	>
+		<div
+			v-if="loading"
+			class="flex items-center gap-2 text-sm text-gray-400"
+		>
+			<span
+				class="spinner"
+				aria-hidden="true"
+			/>
+			<span>{{ text }}</span>
+		</div>
 
-    <div v-else class="flex items-center gap-2 text-sm text-gray-400">
-      <span class="font-medium text-gray-200">Found</span>
-      <span class="ml-1 font-semibold text-white">{{ count }}</span>
-      <span class="ml-1 text-gray-400">artists</span>
-    </div>
-  </div>
+		<div
+			v-else
+			class="flex items-center gap-2 text-sm text-gray-400"
+		>
+			<span class="font-medium text-gray-200">Found</span>
+			<span class="ml-1 font-semibold text-white">{{ count }}</span>
+			<span class="ml-1 text-gray-400">artists</span>
+		</div>
+	</div>
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue'
+import { defineProps } from "vue"
 
 const props = defineProps<{
-  loading: boolean
-  count: number
-  text?: string
+	loading: boolean
+	count: number
+	text?: string
 }>()
 
-const text = props.text ?? 'Searching artists…'
+const text = props.text ?? "Searching artists…"
 </script>
 
 <style scoped>
