@@ -99,12 +99,6 @@ const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
 const isPlaylistFormModalVisible = ref(false)
 const isAddToExistinPlaylistModalVisible = ref(false)
 
-const allArtistsSelected = computed(() => {
-	return eventData.value
-		? selectedArtists.value.size === eventData.value.artists.length
-		: false
-})
-
 const artistsFound = computed(() => eventData.value?.artists?.length ?? 0)
 
 const updateRouteSearchQuery = (query: string) => {
@@ -130,6 +124,7 @@ const handlePlaySelected = async () => {
 
 const handlePlayAll = () => {
 	if (eventData.value) {
+		console.log("play all tracks for event artists", eventData.value.artists)
 		// playAll(eventData.value.artists)
 	}
 }
