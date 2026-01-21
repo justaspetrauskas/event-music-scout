@@ -6,14 +6,12 @@
 			<ThemeToggle />
 		</header>
 		<main class="min-h-screen bg-gradient-to-br bg-white dark:bg-gray-900">
-			<!-- Background blobs z-0 -->
+			<div class="mx-auto z-1">
+				<slot />
+			</div>
 			<div class="fixed inset-0 pointer-events-none z-0">
 				<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-accent/5 rounded-[50%] blur-3xl" />
 				<div class="absolute inset-0 w-[300px] h-[300px] md:w-[450px] md:h-[450px] lg:w-[600px] lg:h-[600px] bg-accent/20 rounded-[50%] blur-3xl mx-auto my-auto" />
-			</div>
-
-			<div class="mx-auto z-1">
-				<slot />
 			</div>
 		</main>
 	</div>

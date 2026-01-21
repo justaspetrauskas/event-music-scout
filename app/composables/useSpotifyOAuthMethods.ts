@@ -52,11 +52,12 @@ export const useSpotifyOAuthMethods = () => {
 				if (event.origin === window.location.origin) {
 					if (event.data.success) {
 						window.removeEventListener("message", handleMessage)
-						authWindow.close()
+
 						const token = await getAccessToken()
 						if (token) {
 							await fetchUserProfile(token)
 						}
+						authWindow.close()
 					}
 				}
 			}

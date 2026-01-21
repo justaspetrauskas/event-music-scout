@@ -118,7 +118,14 @@ const handleAnalyzeEvent = async (url: string) => {
 	updateRouteSearchQuery(url)
 
 	eventData.value = await analyzeEvent(url)
-	if (import.meta.env.DEV) console.log("data", eventData.value)
+}
+
+const handlePlaySelected = async () => {
+	if (selectedTracks.value.size === 0) return
+
+	await showPlayer()
+	await playTrack(Array.from(selectedTracks.value))
+	showPlayer.value = true
 }
 
 const handlePlayAll = () => {
