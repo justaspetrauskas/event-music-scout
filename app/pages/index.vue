@@ -34,7 +34,6 @@
 			<TracksSelectionControl
 				@toggle-select-all="handleToggleSelectAll"
 				@clear-selection="handleClearSelection"
-				@play-all="handlePlayAll"
 				@create-playlist="handleCreatePlaylist"
 				@add-to-existing-playlist="handleAddToExistingPlaylist"
 				@play-selected="handlePlaySelected"
@@ -120,13 +119,6 @@ const handlePlaySelected = async () => {
 	await showPlayer()
 	await playTrack(Array.from(selectedTracks.value))
 	showPlayer.value = true
-}
-
-const handlePlayAll = () => {
-	if (eventData.value) {
-		console.log("play all tracks for event artists", eventData.value.artists)
-		// playAll(eventData.value.artists)
-	}
 }
 
 const handleCreatePlaylist = async () => {
