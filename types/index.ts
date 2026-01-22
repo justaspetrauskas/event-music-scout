@@ -39,6 +39,7 @@ export interface EventData {
 	name: string
 	date: string
 	location: string
+	genres: string[]
 	url: string
 	artists: Artist[]
 	aiSummary?: string

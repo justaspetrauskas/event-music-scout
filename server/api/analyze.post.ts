@@ -19,6 +19,7 @@ async function getAccessToken() {
 export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
 	const { anthropicApiKey } = useRuntimeConfig()
+
 	const { url } = await readBody(event)
 
 	// const pageText = await $fetch("/api/scrape", {
@@ -86,6 +87,7 @@ export default defineEventHandler(async (event) => {
 		name: extracted.name,
 		date: extracted.date,
 		location: extracted.location,
+		genres: extracted.genres,
 		url,
 		artists: searchResults.data,
 	}

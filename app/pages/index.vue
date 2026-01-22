@@ -22,14 +22,9 @@
 			v-if="eventData"
 			class="max-w-4xl w-full mb-16 mx-auto px-2 sm:px-0"
 		>
-			<!-- <EventControls
-					:selected-count="selectedArtists.size"
-					:total-artists="eventData.artists.length"
-					:all-selected="allArtistsSelected"
-					@toggle-select-all="handleToggleSelectAll"
-					@play-all="handlePlayAll"
-					@create-playlist="handleCreatePlaylist"
-				/> -->
+			<EventSummary
+				:event="eventData"
+			/>
 
 			<TracksSelectionControl
 				@toggle-select-all="handleToggleSelectAll"
@@ -69,6 +64,7 @@
 
 <script lang="ts" setup>
 import TracksSelectionControl from "@/components/Track/TracksSelectionControl.vue"
+import EventSummary from "@/components/Event/EventSummary.vue"
 import PlaylistFormModal from "@/components/UI/PlaylistFormModal.vue"
 import MusicPlayer from "@/components/MusicPlayer/musicPlayerMain.vue"
 import Loader from "@/components/UI/Loader.vue"

@@ -19,13 +19,11 @@
 						:followers="artist.followers"
 					/>
 					<div class="flex flex-wrap gap-1.5 mt-auto">
-						<span
+						<Pill
 							v-for="genre in artist.genres"
 							:key="genre"
-							class="px-2 py-0.5 bg-gray-200/60 text-gray-400 border border-gray-200 dark:text-white rounded-full text-xs capitalize"
-						>
-							{{ genre }}
-						</span>
+							:genre="genre"
+						/>
 					</div>
 				</div>
 			</div>
@@ -35,8 +33,9 @@
 
 <script lang="ts" setup>
 import type { Artist } from "@@/types"
+import Pill from "../UI/Pill.vue"
 
-defineProps<{
+const props = defineProps<{
 	artist: Artist
 	selected: boolean
 }>()
