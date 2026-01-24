@@ -44,11 +44,11 @@ export async function setSpotifyTokens(event: H3Event, tokens: any): Promise<voi
 	})
 }
 
-export function getSpotifyTokens(event: H3Event): { access_token: string | null, refresh_token: string | null } {
+export function getSpotifyTokens(event: H3Event): { access_token: string | null, refresh_token: string | null, expires_at: number } {
 	return {
 		access_token: getCookie(event, "spotify_access_token") || null,
 		refresh_token: getCookie(event, "spotify_refresh_token") || null,
-		expires_at: parseInt(getCookie(event, "spotify_token_expires_at") || "0"),
+		expires_at: parseInt(getCookie(event, "spotify_token_expires_at") || 0),
 	}
 }
 
