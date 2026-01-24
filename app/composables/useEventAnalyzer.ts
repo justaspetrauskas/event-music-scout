@@ -10,21 +10,35 @@ export const useEventAnalyzer = () => {
 	const analyzeEvent = async (url: string) => {
 		loading.value = true
 		try {
-			// find top tracks
-
 			const eventMeta = await $fetch("/api/analyze", { method: "POST", body: { url } })
 
 			const artists = await searchArtists(eventMeta.artistQueries, eventMeta.genres)
 
 			const { matches, total } = artists || { matches: [] }
 			const identifiedArtistIds = matches?.map((artist: Artist) => artist.id) || []
+			const artistMap = new Map(matches.map((artist: Artist) => [artist.id, artist]))
 			totalArtistsFound.value = total || 0
 
-			await Promise.all(identifiedArtistIds.map(async (artistId: string) => {
-				const topTracks = await searchTopTracks(artistId)
-				console.log(`Top tracks for artist ${artistId}:`, topTracks)
-			}))
+			await Promise.all(
+				identifiedArtistIds.map(async (artistId: string) => {
+					try {
+						const topTracks = await searchTopTracks(artistId)
+						const artist = artistMap.get(artistId)
+						if (artist) {
+							artist.tracks = topTracks
+						}
+					}
+					catch (error) {
+						console.warn(`Failed to fetch top tracks for ${artistId}:`, error)
+					}
+				}),
+			)
+
+			eventMeta.artists = [...artistMap.values()]
+
+			console.log("Event analysis complete:", eventMeta, artistMap)
 			// sessionStorage.setItem("eventData", JSON.stringify(data))
+			return eventMeta
 		}
 		catch (e) {
 			error.value = e instanceof Error ? e.message : "Failed to analyze event"

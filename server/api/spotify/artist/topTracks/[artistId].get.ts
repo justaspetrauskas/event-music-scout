@@ -16,7 +16,6 @@ function processTracks(tracks: RawTrack[]): Track[] {
 }
 
 export default defineEventHandler(async (event) => {
-	console.log("event.params", event.context)
 	const { isAuthenticated, accessToken } = event.context.spotifyUser
 	const id = event.context.params?.artistId
 
@@ -40,5 +39,6 @@ export default defineEventHandler(async (event) => {
 		return { error }
 	}
 	const { tracks } = await res.json()
+	console.log("tracks", tracks)
 	return processTracks(tracks)
 })

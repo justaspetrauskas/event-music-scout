@@ -165,18 +165,21 @@ const checkUser = async () => {
 	isUserLoading.value = false
 }
 
+const handleMessage = async (event: MessageEvent) => {
+	if (event.origin !== window.location.origin) return
+
+	if (event.data.authenticated === true) {
+		await fetchUserProfile()
+	}
+}
+
 onMounted(() => {
 	checkUser()
 
-	window.addEventListener("message", async (event) => {
-		if (event.origin !== window.location.origin) return
-		if (event.data.authenticated === true) {
-			await fetchUserProfile()
-		}
-	})
+	window.addEventListener("message", handleMessage)
 })
 onUnmounted(() => {
-	window.removeEventListener("message")
+	window.removeEventListener("message", handleMessage)
 })
 </script>
 
