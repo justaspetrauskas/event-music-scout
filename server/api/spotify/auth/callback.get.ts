@@ -1,5 +1,4 @@
 import { getSpotifyState, clearSpotifyState, setSpotifyTokens } from "../../../utils/session"
-import { sendRedirect } from "h3"
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event)
@@ -16,7 +15,6 @@ export default defineEventHandler(async (event) => {
 	if (storedState === null || incomingState !== storedState || code === null) {
 		console.error("State mismatch or missing code. Stored state:", storedState, "Incoming state:", incomingState, "Code:", code)
 		await clearSpotifyState(event)
-		// return sendRedirect(event, "/?error=state_mismatch", 302)
 		return { success: false }
 	}
 
@@ -37,7 +35,6 @@ export default defineEventHandler(async (event) => {
 
 	await setSpotifyTokens(event, tokenResponse)
 	await clearSpotifyState(event)
-	console.log("working? ", tokenResponse)
 
 	return { success: true }
 })
