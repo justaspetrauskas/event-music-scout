@@ -124,24 +124,12 @@ const handlePlaySelected = async () => {
 
 const handleCreatePlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
-
-	if (existingToken) {
-		isPlaylistFormModalVisible.value = true
-		return existingToken
-	}
-
-	handleOpenSpotifyOAuthWindow()
+	isPlaylistFormModalVisible.value = true
 }
 
 const handleAddToExistingPlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
-
-	if (existingToken) {
-		isAddToExistinPlaylistModalVisible.value = true
-		return existingToken
-	}
-
-	// handleOpenSpotifyOAuthWindow()
+	isAddToExistinPlaylistModalVisible.value = true
 }
 
 const onCloseModal = () => {
