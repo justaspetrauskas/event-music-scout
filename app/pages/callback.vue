@@ -9,31 +9,26 @@
 <script setup lang="ts">
 import { onMounted } from "vue"
 
-const { getAuthorizationToken } = useSpotifyOAuthMethods()
-
-const code = ref<string | null>(null)
-const verifier = ref<string | null>(null)
-
 definePageMeta({
 	layout: false,
 })
 
-const onAuthWindowInit = async () => {
-	const params = new URLSearchParams(window.location.search)
-	code.value = params.get("code")
+const checkUserSession = async () => {
+	const { code, state } = useRoute().query
+	const { success } = await $fetch<{ success: boolean }>("/api/spotify/auth/callback", { query: { code, state } })
 
-	if (code.value && window.opener) {
-		verifier.value = window.opener.localStorage.getItem("verifier")
-		await getAuthorizationToken(code.value, verifier.value)
-		window.opener.postMessage({ success: true }, window.location.origin)
+	console.log("data", success)
+
+	if (success) {
+		console.log("close window")
 		window.close()
 	}
 	else {
-		console.error("Authorization code missing or no opener window.")
+		console.error("Authentication failed.")
 	}
 }
 
 onMounted(() => {
-	onAuthWindowInit()
+	checkUserSession()
 })
 </script>

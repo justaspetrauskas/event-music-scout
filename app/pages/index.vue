@@ -72,10 +72,13 @@ import type { EventData } from "~~/types"
 
 import { usePlaylistStore } from "~/stores/playlistStore"
 import { useMusicPlayerStore } from "~/stores/useMusicPlayerStore"
+import { useUserStore } from "~/stores/userStore"
 import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
 
 const playlistStore = usePlaylistStore()
 const { toggleSelectAll } = usePlaylistStore()
+const userStore = useUserStore()
+const { fetchUserProfile } = userStore
 const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 
 const { analyzeEvent, loading } = useEventAnalyzer()
@@ -154,8 +157,13 @@ const handleClearSelection = () => {
 	selectedTracks.value.clear()
 }
 
-onMounted(() => {
+const checkUser = async () => {
+	// get profile to check if user is logged in
+	await fetchUserProfile()
+}
 
+onMounted(() => {
+	checkUser()
 })
 </script>
 

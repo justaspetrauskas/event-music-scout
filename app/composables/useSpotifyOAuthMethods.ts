@@ -96,5 +96,14 @@ export const useSpotifyOAuthMethods = () => {
 		token.value = null
 	}
 
-	return { getRedirectToAuthCodeFlow, getAuthorizationToken, getAccessToken, clearToken, handleOpenSpotifyOAuthWindow }
+	const loginUser = async () => {
+		navigateTo("/api/spotify/auth/login", { external: true, open: {
+			target: "_blank",
+			windowFeatures: {
+				popup: true,
+			},
+		} })
+	}
+
+	return { getRedirectToAuthCodeFlow, getAuthorizationToken, getAccessToken, clearToken, handleOpenSpotifyOAuthWindow, loginUser }
 }
