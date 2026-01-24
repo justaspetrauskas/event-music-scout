@@ -63,6 +63,7 @@ import { ref } from "vue"
 
 const { getAccessToken, clearToken, loginUser } = useSpotifyOAuthMethods()
 
+const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 
 const showDropdown = ref(false)
