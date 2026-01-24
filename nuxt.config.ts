@@ -9,7 +9,6 @@ export default defineNuxtConfig({
 		"@nuxtjs/tailwindcss",
 		"@vueuse/motion/nuxt",
 		"floating-vue/nuxt",
-		"nuxt-auth-utils",
 	],
 	ssr: true,
 	devtools: { enabled: false },
