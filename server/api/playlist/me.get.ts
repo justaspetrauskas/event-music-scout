@@ -1,9 +1,14 @@
 export default defineEventHandler(async (event) => {
-	const authorization = event.node.req.headers["authorization"]
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
 	const res = await fetch(`https://api.spotify.com/v1/me/playlists?limit=50`, {
 		method: "GET",
 		headers: {
-			Authorization: authorization as string,
+			Authorization: `Bearer ${accessToken}`,
 		},
 	})
 

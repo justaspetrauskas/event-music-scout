@@ -1,7 +1,12 @@
 import { getRouterParam } from "h3"
 
 export default defineEventHandler(async (event) => {
-	const authorization = event.node.req.headers["authorization"]
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
 	const playlistId = getRouterParam(event, "playlistId")
 	const body = await readBody(event)
 
@@ -9,7 +14,7 @@ export default defineEventHandler(async (event) => {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
-			"Authorization": authorization as string,
+			"Authorization": `Bearer ${accessToken}`,
 		},
 		body: JSON.stringify(body),
 	})
