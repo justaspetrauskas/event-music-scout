@@ -16,9 +16,9 @@ function processTracks(tracks: RawTrack[]): Track[] {
 }
 
 export default defineEventHandler(async (event) => {
-	const id = event.context.params?.artistId
-
+	console.log("event.params", event.context)
 	const { isAuthenticated, accessToken } = event.context.spotifyUser
+	const id = event.context.params?.artistId
 
 	if (!isAuthenticated) {
 		setResponseStatus(event, 401)
@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
 	)
 	if (!res.ok) {
 		const error = await res.json()
+		console.error("Error fetching top tracks:", error)
+		setResponseStatus(event, res.status)
 		return { error }
 	}
 	const { tracks } = await res.json()

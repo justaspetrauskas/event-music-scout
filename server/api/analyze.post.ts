@@ -60,24 +60,6 @@ export default defineEventHandler(async (event) => {
 
 	const artists = extracted.artists
 	const genres = extracted.genres
-	const searchResults = await $fetch("/api/spotify/search-artist", {
-		method: "POST",
-		body: { artists, genres } })
-	// isSearchingArtists = false
-
-	// await new Promise(resolve => setTimeout(resolve, 2000))
-
-	// return {
-	// 	name: extracted.name,
-	// 	date: extracted.date,
-	// 	location: extracted.location,
-	// 	genres: extracted.genres,
-	// 	isReadingUrl,
-	// 	isSearchingArtists,
-	// 	totalArtistsFound,
-	// 	url,
-	// 	artists: searchResults.data,
-	// }
 
 	return {
 		name: extracted.name,

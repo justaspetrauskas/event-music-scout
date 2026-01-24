@@ -170,7 +170,6 @@ onMounted(() => {
 
 	window.addEventListener("message", async (event) => {
 		if (event.origin !== window.location.origin) return
-		console.log("mesage received", event.data)
 		if (event.data.authenticated === true) {
 			await fetchUserProfile()
 		}
