@@ -100,7 +100,19 @@ export default defineEventHandler(async (event) => {
 	)
 
 	return {
-		matches: searchResults.filter((r): r is Artist => !!r && !("error" in r)).map(artist => ({ ...artist, folowers: artist.followers.total })),
+		matches: searchResults.filter((r): r is Artist => !!r && !("error" in r)).map((artist) => {
+			const totalFollowers = artist.followers?.total ?? 0
+			const popularity = artist.popularity ?? 0
+			return {
+				id: artist.id,
+				name: artist.name,
+				images: artist.images ?? [],
+				genres: artist.genres ?? [],
+				followers: totalFollowers,
+				popularity,
+				tracks: [],
+			}
+		}),
 		total: artistsQueryArr.length,
 		failed: artistsQueryArr.length - searchResults.filter((r): r is Artist => !!r && !("error" in r)).length,
 	}
