@@ -58,7 +58,6 @@ export default defineEventHandler(async (event) => {
 
 	const artistsQueryArr = body.artists
 	const eventGenres = body.genres || []
-	const candidateCounts: number[] = []
 
 	const searchResults = await Promise.all(
 		artistsQueryArr.map(async (artistQuery: string) => {
@@ -77,7 +76,6 @@ export default defineEventHandler(async (event) => {
 
 				const data = await res.json()
 				const { artists } = data
-				candidateCounts.push(Array.isArray(artists?.items) ? artists.items.length : 0)
 
 				const parsedArtists: Artist[] = artists.items
 					.map((artist: Artist) => ({
