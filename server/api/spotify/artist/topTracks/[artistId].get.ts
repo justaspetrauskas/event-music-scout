@@ -17,12 +17,18 @@ function processTracks(tracks: RawTrack[]): Track[] {
 
 export default defineEventHandler(async (event) => {
 	const id = event.context.params?.artistId
-	const authHeader = event.req.headers["authorization"] || event.req.headers["Authorization"]
+
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
 
 	const res = await fetch(`https://api.spotify.com/v1/artists/${id}/top-tracks`,
 		{
 			headers: {
-				"Authorization": `${authHeader}`,
+				"Authorization": `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 			},
 		},

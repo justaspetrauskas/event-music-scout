@@ -1,4 +1,10 @@
 export default defineEventHandler(async (event) => {
+	const pathname = getRequestURL(event).pathname
+	console.log("Auth middleware triggered for path:", pathname)
+	// if (pathname.includes("/auth") || pathname.includes("auth")) {
+	// 	return
+	// }
+
 	const tokens = getSpotifyTokens(event)
 	if (tokens.access_token && !isTokenExpired(tokens)) {
 		// Token is valid, proceed
@@ -23,5 +29,6 @@ export default defineEventHandler(async (event) => {
 			accessToken: null,
 			isAuthenticated: false,
 		}
+		// return { success: false, message: "Not authenticated" }
 	}
 })

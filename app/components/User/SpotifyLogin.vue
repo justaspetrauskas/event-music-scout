@@ -61,9 +61,10 @@
 import { ChevronDown } from "lucide-vue-next"
 import { ref } from "vue"
 
-const { getAccessToken, clearToken, loginUser } = useSpotifyOAuthMethods()
+const { clearToken, loginUser } = useSpotifyOAuthMethods()
 
 const userStore = useUserStore()
+const { fetchUserProfile, logout } = userStore
 const { user } = storeToRefs(userStore)
 
 const showDropdown = ref(false)
@@ -76,14 +77,6 @@ const login = async () => {
 const handleLogout = () => {
 	logout()
 	clearToken()
-}
-
-const checkExistingToken = async () => {
-	const existingToken = await getAccessToken()
-	if (existingToken) {
-		await fetchUserProfile(existingToken)
-	}
-	return existingToken
 }
 </script>
 

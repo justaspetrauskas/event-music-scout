@@ -43,7 +43,13 @@ function findBestMatch(items: Artist[], query: string, targetGenres: string[]): 
 }
 
 export default defineEventHandler(async (event) => {
-	const authorization = event.req.headers["authorization"] || event.req.headers["Authorization"]
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
+
 	const body = await readBody(event) as { artists: string[], genres: string[] }
 
 	if (!body.artists?.length) {
@@ -60,7 +66,7 @@ export default defineEventHandler(async (event) => {
 			try {
 				const res = await fetch(`https://api.spotify.com/v1/search?q=artist:${encodeURIComponent(artistQuery)}&type=artist&limit=30`, {
 					headers: {
-						"Authorization": authorization! as string,
+						"Authorization": `Bearer ${accessToken}`,
 						"Content-Type": "application/json",
 					},
 				})
@@ -138,7 +144,6 @@ export default defineEventHandler(async (event) => {
 		}
 	})
 
-	console.log("filtered matches: ", filteredMatches.map(m => ({ name: m.name, genres: m.genres })))
 	return {
 		matches: filteredMatches,
 		total: artistsQueryArr.length,

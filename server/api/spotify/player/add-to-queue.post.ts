@@ -1,6 +1,13 @@
 export default defineEventHandler(async (event) => {
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
+
 	const body = await readBody(event) as { device_id?: string, trackUris: string[] }
-	const authorization = getHeader(event, "Authorization")
+
 	const { device_id, trackUris } = body
 
 	if (!authorization || !trackUris?.length) {
@@ -16,7 +23,7 @@ export default defineEventHandler(async (event) => {
 			const res = await fetch(url.toString(), {
 				method: "POST",
 				headers: {
-					"Authorization": authorization,
+					"Authorization": `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 				},
 			})

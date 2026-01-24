@@ -97,6 +97,8 @@ const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
 const isPlaylistFormModalVisible = ref(false)
 const isAddToExistinPlaylistModalVisible = ref(false)
 
+const isUserLoading = ref(false)
+
 const artistsFound = computed(() => eventData.value?.artists?.length ?? 0)
 
 const updateRouteSearchQuery = (query: string) => {
@@ -158,12 +160,24 @@ const handleClearSelection = () => {
 }
 
 const checkUser = async () => {
-	// get profile to check if user is logged in
+	isUserLoading.value = true
 	await fetchUserProfile()
+	isUserLoading.value = false
 }
 
 onMounted(() => {
 	checkUser()
+
+	window.addEventListener("message", async (event) => {
+		if (event.origin !== window.location.origin) return
+		console.log("mesage received", event.data)
+		if (event.data.authenticated === true) {
+			await fetchUserProfile()
+		}
+	})
+})
+onUnmounted(() => {
+	window.removeEventListener("message")
 })
 </script>
 

@@ -96,7 +96,7 @@ export const useSpotifyOAuthMethods = () => {
 		token.value = null
 	}
 
-	const loginUser = async () => {
+	const loginUser = () => {
 		navigateTo("/api/spotify/auth/login", { external: true, open: {
 			target: "_blank",
 			windowFeatures: {

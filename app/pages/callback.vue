@@ -18,10 +18,12 @@ const checkUserSession = async () => {
 	const { success } = await $fetch<{ success: boolean }>("/api/spotify/auth/callback", { query: { code, state } })
 
 	if (success) {
-		window.close()
+		window.opener.postMessage({ authenticated: true }, "*")
+		setTimeout(() => window.close(), 1000)
 	}
 	else {
 		console.error("Authentication failed. Should try to login again???")
+		// setTimeout(() => window.close(), 1000)
 	}
 }
 
