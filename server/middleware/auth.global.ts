@@ -1,4 +1,4 @@
-import { getSpotifyTokens, clearAllTokens, isTokenExpired } from "../../utils/session"
+import { getSpotifyTokens, clearAllTokens, isTokenExpired } from "../utils/session"
 
 export default defineEventHandler(async (event) => {
 	const pathname = getRequestURL(event)?.pathname

@@ -21,7 +21,7 @@ export async function clearSpotifyState(event: H3Event): Promise<void> {
 export async function setSpotifyTokens(event: H3Event, tokens: any): Promise<void> {
 	// HttpOnly cookies - safe from XSS
 	setCookie(event, "spotify_access_token", tokens.access_token, {
-		httpOnly: true,
+		httpOnly: false,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
 		maxAge: tokens.expires_in,

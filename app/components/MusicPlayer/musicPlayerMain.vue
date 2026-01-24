@@ -177,7 +177,6 @@ interface Track {
 	uri?: string
 }
 
-const { getAccessToken } = useSpotifyOAuthMethods()
 const musicPlayerStore = useMusicPlayerStore()
 const { nextTrack, previousTrack } = useTrackPlaybackMethods()
 const { connect, togglePlayback, setVolume } = musicPlayerStore

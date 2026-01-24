@@ -125,7 +125,6 @@ const handlePlaySelected = async () => {
 const handleCreatePlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
 
-	const existingToken = await getAccessToken()
 	if (existingToken) {
 		isPlaylistFormModalVisible.value = true
 		return existingToken
@@ -137,7 +136,6 @@ const handleCreatePlaylist = async () => {
 const handleAddToExistingPlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
 
-	const existingToken = await getAccessToken()
 	if (existingToken) {
 		isAddToExistinPlaylistModalVisible.value = true
 		return existingToken
