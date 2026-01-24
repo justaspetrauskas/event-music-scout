@@ -17,14 +17,11 @@ const checkUserSession = async () => {
 	const { code, state } = useRoute().query
 	const { success } = await $fetch<{ success: boolean }>("/api/spotify/auth/callback", { query: { code, state } })
 
-	console.log("data", success)
-
 	if (success) {
-		console.log("close window")
 		window.close()
 	}
 	else {
-		console.error("Authentication failed.")
+		console.error("Authentication failed. Should try to login again???")
 	}
 }
 
