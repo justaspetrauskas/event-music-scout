@@ -3,7 +3,6 @@ export const useEventAnalyzer = () => {
 	const isSearchingArtists = ref(false)
 	const isFindingTracks = ref(false)
 	const totalArtistsFound = ref(0)
-	const totalArtistsIdentified = ref(0)
 
 	const loading = ref(false)
 	const error = ref<string | null>(null)
@@ -17,8 +16,9 @@ export const useEventAnalyzer = () => {
 
 			const artists = await searchArtists(eventMeta.artistQueries, eventMeta.genres)
 
-			const { matches } = artists || { matches: [] }
-			const identifiedArtistIds = matches?.filter((artist: Artist) => !artist.error).map((artist: Artist) => artist.id) || []
+			const { matches, total } = artists || { matches: [] }
+			const identifiedArtistIds = matches?.map((artist: Artist) => artist.id) || []
+			totalArtistsFound.value = total || 0
 
 			await Promise.all(identifiedArtistIds.map(async (artistId: string) => {
 				const topTracks = await searchTopTracks(artistId)
