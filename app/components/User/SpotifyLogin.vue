@@ -61,38 +61,23 @@
 import { ChevronDown } from "lucide-vue-next"
 import { ref } from "vue"
 
-const { getAccessToken, handleOpenSpotifyOAuthWindow, clearToken } = useSpotifyOAuthMethods()
+const { clearToken, loginUser } = useSpotifyOAuthMethods()
 
 const userStore = useUserStore()
+const { fetchUserProfile, logout } = userStore
 const { user } = storeToRefs(userStore)
-const { logout, fetchUserProfile } = useUserStore()
 
 const showDropdown = ref(false)
 const spotifyIcon = "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
 
 const login = async () => {
-	const hasExistingToken = await checkExistingToken()
-	if (!hasExistingToken) {
-		await handleOpenSpotifyOAuthWindow()
-	}
+	await loginUser()
 }
 
 const handleLogout = () => {
 	logout()
 	clearToken()
 }
-
-const checkExistingToken = async () => {
-	const existingToken = await getAccessToken()
-	if (existingToken) {
-		await fetchUserProfile(existingToken)
-	}
-	return existingToken
-}
-
-onMounted(() => {
-	checkExistingToken()
-})
 </script>
 
 <style>

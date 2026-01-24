@@ -1,6 +1,11 @@
 export default defineEventHandler(async (event) => {
 	const { device_id } = getQuery(event)
-	const authorization = event.node.req.headers["authorization"]
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
 
 	const url = new URL("https://api.spotify.com/v1/me/player/previous")
 	url.searchParams.append("device_id", device_id as string)
@@ -8,7 +13,7 @@ export default defineEventHandler(async (event) => {
 	const res = await fetch(url.toString(), {
 		method: "POST",
 		headers: {
-			"Authorization": authorization as string,
+			"Authorization": `Bearer ${accessToken}`,
 			"Content-Type": "application/json",
 		},
 	})

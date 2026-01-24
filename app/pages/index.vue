@@ -72,10 +72,13 @@ import type { EventData } from "~~/types"
 
 import { usePlaylistStore } from "~/stores/playlistStore"
 import { useMusicPlayerStore } from "~/stores/useMusicPlayerStore"
+import { useUserStore } from "~/stores/userStore"
 import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
 
 const playlistStore = usePlaylistStore()
 const { toggleSelectAll } = usePlaylistStore()
+const userStore = useUserStore()
+const { fetchUserProfile } = userStore
 const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 
 const { analyzeEvent, loading } = useEventAnalyzer()
@@ -93,6 +96,8 @@ const eventData = ref<EventData | null>(null)
 const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
 const isPlaylistFormModalVisible = ref(false)
 const isAddToExistinPlaylistModalVisible = ref(false)
+
+const isUserLoading = ref(false)
 
 const artistsFound = computed(() => eventData.value?.artists?.length ?? 0)
 
@@ -120,7 +125,6 @@ const handlePlaySelected = async () => {
 const handleCreatePlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
 
-	const existingToken = await getAccessToken()
 	if (existingToken) {
 		isPlaylistFormModalVisible.value = true
 		return existingToken
@@ -132,7 +136,6 @@ const handleCreatePlaylist = async () => {
 const handleAddToExistingPlaylist = async () => {
 	if (!eventData.value || selectedTracks.value.size === 0) return
 
-	const existingToken = await getAccessToken()
 	if (existingToken) {
 		isAddToExistinPlaylistModalVisible.value = true
 		return existingToken
@@ -154,8 +157,27 @@ const handleClearSelection = () => {
 	selectedTracks.value.clear()
 }
 
-onMounted(() => {
+const checkUser = async () => {
+	isUserLoading.value = true
+	await fetchUserProfile()
+	isUserLoading.value = false
+}
 
+const handleMessage = async (event: MessageEvent) => {
+	if (event.origin !== window.location.origin) return
+
+	if (event.data.authenticated === true) {
+		await fetchUserProfile()
+	}
+}
+
+onMounted(() => {
+	checkUser()
+
+	window.addEventListener("message", handleMessage)
+})
+onUnmounted(() => {
+	window.removeEventListener("message", handleMessage)
 })
 </script>
 

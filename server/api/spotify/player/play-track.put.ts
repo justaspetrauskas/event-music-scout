@@ -2,10 +2,12 @@ import { getQuery } from "h3"
 
 export default defineEventHandler(async (event) => {
 	const { device_id } = getQuery(event) as { device_id?: string }
-	const authorization = (event.node?.req?.headers || {})["authorization"] as string | undefined
 
-	if (!authorization) {
-		throw createError({ statusCode: 401, message: "Missing Authorization header" })
+	const { isAuthenticated, accessToken } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
 	}
 
 	const body = await readBody(event)
@@ -20,7 +22,7 @@ export default defineEventHandler(async (event) => {
 	const res = await fetch(url.toString(), {
 		method: "PUT",
 		headers: {
-			"Authorization": authorization,
+			"Authorization": `Bearer ${accessToken}`,
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify(payload),

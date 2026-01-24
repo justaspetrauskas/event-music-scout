@@ -16,7 +16,7 @@ export interface SpotifyPlayer {
 }
 
 export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
-	const { getAccessToken } = useSpotifyOAuthMethods()
+	const { spotify_access_token: accessToken } = useCookie("spotify_access_token")
 
 	const player = ref<Spotify.Player | null>(null)
 	const isConnected = ref<boolean>(false)
@@ -83,9 +83,7 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 
 	const showPlayer = async () => {
 		if (!isPlayerVisible.value) {
-			const token = await getAccessToken()
-			if (!token) return
-			await connectPlayer(token)
+			await connectPlayer(accessToken)
 			isPlayerVisible.value = true
 		}
 	}

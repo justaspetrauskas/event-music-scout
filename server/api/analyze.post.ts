@@ -2,19 +2,8 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { eventExtractionPrompt } from "./lib/extractionPrompt"
 import { testResponse } from "./lib/testResponse"
 
-let cachedToken: string | null = null
-let tokenExpiry = 0
-
-async function getAccessToken() {
-	const now = Date.now()
-	if (cachedToken && now < tokenExpiry) {
-		return cachedToken
-	}
-	const tokenResponse = await $fetch("/api/spotify/auth/token", { method: "POST", body: { grant_type: "client_credentials" } })
-	cachedToken = tokenResponse.access_token
-	tokenExpiry = now + tokenResponse.expires_in * 1000 // expires_in is in seconds
-	return cachedToken
-}
+const cachedToken: string | null = null
+const tokenExpiry = 0
 
 export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
@@ -40,8 +29,6 @@ export default defineEventHandler(async (event) => {
 	// 	messages: [{ role: "user", content: aiPrompt }],
 	// 	max_tokens: 1024,
 	// })
-
-	const accessToken = await getAccessToken()
 
 	// let extracted
 	// try {
@@ -73,22 +60,13 @@ export default defineEventHandler(async (event) => {
 
 	const artists = extracted.artists
 	const genres = extracted.genres
-	const searchResults = await $fetch("/api/spotify/search-artist", {
-		method: "POST",
-		headers: {
-			"Authorization": `Bearer ${accessToken}`,
-			"Content-Type": "application/json",
-		},
-		body: { artists, genres } })
-
-	// await new Promise(resolve => setTimeout(resolve, 2000))
 
 	return {
 		name: extracted.name,
 		date: extracted.date,
 		location: extracted.location,
 		genres: extracted.genres,
+		artistQueries: artists,
 		url,
-		artists: searchResults.data,
 	}
 })

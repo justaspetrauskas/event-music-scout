@@ -1,9 +1,9 @@
 export const useSpotifyOAuthMethods = () => {
 	const token = ref<string | null>(null)
 	const config = useRuntimeConfig()
-	const { fetchUserProfile } = useUserStore()
 	const { spotifyClientId, spotifyRedirectUri } = config.public
 
+	// TODO deprecated, left for reference
 	const getRedirectToAuthCodeFlow = async (): Promise<string> => {
 		const verifier = generateCodeVerifier(128)
 		const challenge = await generateCodeChallenge(verifier)
@@ -41,31 +41,6 @@ export const useSpotifyOAuthMethods = () => {
 			.replace(/=+$/, "")
 	}
 
-	const handleOpenSpotifyOAuthWindow = async () => {
-		const url = await getRedirectToAuthCodeFlow()
-
-		const windowFeatures = "width=800,height=600,left=100,top=100"
-
-		const authWindow = window.open(url, "_blank", windowFeatures)
-		if (authWindow) {
-			const handleMessage = async (event: MessageEvent) => {
-				if (event.origin === window.location.origin) {
-					if (event.data.success) {
-						window.removeEventListener("message", handleMessage)
-
-						const token = await getAccessToken()
-						if (token) {
-							await fetchUserProfile(token)
-						}
-						authWindow.close()
-					}
-				}
-			}
-
-			window.addEventListener("message", handleMessage)
-		}
-	}
-
 	const getAuthorizationToken = async (code: string, verifier: string | null): Promise<string | null> => {
 		if (!verifier || !code) return null
 
@@ -96,5 +71,14 @@ export const useSpotifyOAuthMethods = () => {
 		token.value = null
 	}
 
-	return { getRedirectToAuthCodeFlow, getAuthorizationToken, getAccessToken, clearToken, handleOpenSpotifyOAuthWindow }
+	const loginUser = () => {
+		navigateTo("/api/spotify/auth/login", { external: true, open: {
+			target: "_blank",
+			windowFeatures: {
+				popup: true,
+			},
+		} })
+	}
+
+	return { getRedirectToAuthCodeFlow, getAuthorizationToken, getAccessToken, clearToken, loginUser }
 }

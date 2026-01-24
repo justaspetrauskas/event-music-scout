@@ -12,23 +12,20 @@ export const useUserStore = defineStore("userStore", () => {
 		user.value = profile
 	}
 
-	const fetchUserProfile = async (accessToken: string) => {
-		const profile = await $fetch("/api/spotify/me", {
-			method: "GET",
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			} })
+	const fetchUserProfile = async () => {
+		const profile = await $fetch("/api/spotify/me")
+		console.log("Fetched user profile:", profile)
 
 		if (profile.id) {
 			setUser(profile)
 		}
 	}
+
 	const logout = async () => {
 		try {
-			await $fetch("/api/spotify/logout", { method: "POST" })
+			await $fetch("/api/spotify/auth/logout", { method: "POST" })
 			setUser(null)
 			clearAllSelectedTracks()
-			clearNuxtData()
 		}
 		catch (error) {
 			console.error("Logout failed", error)
