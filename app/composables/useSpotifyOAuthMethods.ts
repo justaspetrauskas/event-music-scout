@@ -1,9 +1,9 @@
 export const useSpotifyOAuthMethods = () => {
 	const token = ref<string | null>(null)
 	const config = useRuntimeConfig()
-	const { fetchUserProfile } = useUserStore()
 	const { spotifyClientId, spotifyRedirectUri } = config.public
 
+	// TODO deprecated, left for reference
 	const getRedirectToAuthCodeFlow = async (): Promise<string> => {
 		const verifier = generateCodeVerifier(128)
 		const challenge = await generateCodeChallenge(verifier)
