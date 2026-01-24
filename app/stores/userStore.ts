@@ -22,7 +22,7 @@ export const useUserStore = defineStore("userStore", () => {
 
 	const logout = async () => {
 		try {
-			await $fetch("/api/spotify/logout", { method: "POST" })
+			await $fetch("/api/spotify/auth/logout", { method: "POST" })
 			setUser(null)
 			clearAllSelectedTracks()
 		}
