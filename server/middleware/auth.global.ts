@@ -1,5 +1,7 @@
+import { getSpotifyTokens, clearAllTokens, isTokenExpired } from "../../utils/session"
+
 export default defineEventHandler(async (event) => {
-	const pathname = getRequestURL(event).pathname
+	const pathname = getRequestURL(event)?.pathname
 	console.log("Auth middleware triggered for path:", pathname)
 	// if (pathname.includes("/auth") || pathname.includes("auth")) {
 	// 	return
