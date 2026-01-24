@@ -39,6 +39,5 @@ export default defineEventHandler(async (event) => {
 		return { error }
 	}
 	const { tracks } = await res.json()
-	console.log("tracks", tracks)
 	return processTracks(tracks)
 })

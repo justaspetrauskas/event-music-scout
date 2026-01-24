@@ -14,6 +14,7 @@ export const useUserStore = defineStore("userStore", () => {
 
 	const fetchUserProfile = async () => {
 		const profile = await $fetch("/api/spotify/me")
+		console.log("Fetched user profile:", profile)
 
 		if (profile.id) {
 			setUser(profile)

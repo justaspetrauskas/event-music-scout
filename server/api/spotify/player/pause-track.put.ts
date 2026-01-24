@@ -16,8 +16,6 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	// const data = await res.json()
-
 	if (!res.ok) {
 		console.log("not playing", res)
 		return { success: false }
