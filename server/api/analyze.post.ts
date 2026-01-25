@@ -1,11 +1,14 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import { eventExtractionPrompt } from "./lib/extractionPrompt"
-import { testResponse } from "./lib/testResponse"
-
-const cachedToken: string | null = null
-const tokenExpiry = 0
 
 export default defineEventHandler(async (event) => {
+	const { isAuthenticated } = event.context.spotifyUser
+
+	if (!isAuthenticated) {
+		setResponseStatus(event, 401)
+		return { error: "Not authenticated" }
+	}
+
 	const config = useRuntimeConfig()
 	const { anthropicApiKey } = useRuntimeConfig()
 
@@ -42,31 +45,28 @@ export default defineEventHandler(async (event) => {
 		date: "2025-10-10",
 		location: "Hangaren, Copenhagen, Denmark",
 		artists:
-   ["Kliment",
-   	"Zzbing",
-   	"Oxyflux",
-   	"Krypto",
-   	"Florescence",
-   	"Freya Rose",
-   	"Lulla-Li",
-   	"Merlyn Silva",
-   	"Matt Nørgaard"],
+		["Kliment",
+			"Zzbing",
+			"Oxyflux",
+			"Krypto",
+			"Florescence",
+			"Freya Rose",
+			"Lulla-Li",
+			"Merlyn Silva",
+			"Matt Nørgaard"],
 		genres:
-   ["Dark Progressive Trance",
-   	"Psytrance",
-   	"Progressive Trance",
-   	"Techno",
-   	"Electronic"] }
-
-	const artists = extracted.artists
-	const genres = extracted.genres
+		["Dark Progressive Trance",
+			"Psytrance",
+			"Progressive Trance",
+			"Techno",
+			"Electronic"] }
 
 	return {
 		name: extracted.name,
 		date: extracted.date,
 		location: extracted.location,
 		genres: extracted.genres,
-		artistQueries: artists,
+		artistQueries: extracted.artists,
 		url,
 	}
 })

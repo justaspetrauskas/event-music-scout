@@ -1,4 +1,6 @@
-export const useEventAnalyzer = () => {
+import type { Artist } from "~~/types"
+
+export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 	const isReadingUrl = ref(false)
 	const isSearchingArtists = ref(false)
 	const isFindingTracks = ref(false)
@@ -10,34 +12,34 @@ export const useEventAnalyzer = () => {
 	const analyzeEvent = async (url: string) => {
 		loading.value = true
 		try {
-			const eventMeta = await $fetch("/api/analyze", { method: "POST", body: { url } })
+			const eventMeta = await $fetch("/api/analyze", {
+				method: "POST",
+				body: { url },
+			})
 
 			const artists = await searchArtists(eventMeta.artistQueries, eventMeta.genres)
 
-			const { matches, total } = artists || { matches: [] }
-			const identifiedArtistIds = matches?.map((artist: Artist) => artist.id) || []
+			const { matches = [], total = 0 } = artists || {}
+			const identifiedArtistIds = matches.map((artist: Artist) => artist.id)
 			const artistMap = new Map(matches.map((artist: Artist) => [artist.id, artist]))
-			totalArtistsFound.value = total || 0
+			totalArtistsFound.value = total
 
 			await Promise.all(
 				identifiedArtistIds.map(async (artistId: string) => {
 					try {
 						const topTracks = await searchTopTracks(artistId)
 						const artist = artistMap.get(artistId)
-						if (artist) {
-							artist.tracks = topTracks
-						}
+						if (artist) artist.tracks = topTracks
 					}
-					catch (error) {
-						console.warn(`Failed to fetch top tracks for ${artistId}:`, error)
+					catch (err) {
+						console.warn(`Failed to fetch top tracks for ${artistId}:`, err)
 					}
 				}),
 			)
 
 			eventMeta.artists = [...artistMap.values()]
-
 			console.log("Event analysis complete:", eventMeta, artistMap)
-			// sessionStorage.setItem("eventData", JSON.stringify(data))
+
 			return eventMeta
 		}
 		catch (e) {
@@ -55,8 +57,8 @@ export const useEventAnalyzer = () => {
 		try {
 			const searchResults = await $fetch("/api/spotify/search-artist", {
 				method: "POST",
-				body: { artists: artistQueries, genres } })
-
+				body: { artists: artistQueries, genres },
+			})
 			return searchResults
 		}
 		catch (e) {
@@ -88,6 +90,13 @@ export const useEventAnalyzer = () => {
 	return {
 		loading: readonly(loading),
 		error: readonly(error),
+		isReadingUrl: readonly(isReadingUrl),
+		isSearchingArtists: readonly(isSearchingArtists),
+		isFindingTracks: readonly(isFindingTracks),
+		totalArtistsFound: readonly(totalArtistsFound),
+
 		analyzeEvent,
+		searchArtists,
+		searchTopTracks,
 	}
-}
+})

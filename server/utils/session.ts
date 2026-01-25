@@ -18,27 +18,27 @@ export async function clearSpotifyState(event: H3Event): Promise<void> {
 	deleteCookie(event, "spotify_auth_state")
 }
 
-export async function setSpotifyTokens(event: H3Event, tokens: any): Promise<void> {
-	setCookie(event, "spotify_access_token", tokens.access_token, {
+export async function setSpotifyTokens(event: H3Event, tokens: Record<string, string | number>): Promise<void> {
+	setCookie(event, "spotify_access_token", tokens.access_token as string, {
 		httpOnly: false,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: tokens.expires_in,
+		maxAge: tokens.expires_in as number,
 	})
 
-	setCookie(event, "spotify_refresh_token", tokens.refresh_token, {
+	setCookie(event, "spotify_refresh_token", tokens.refresh_token as string, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
 		maxAge: 60 * 60 * 24 * 365,
 	})
 
-	const expiresAt = Date.now() + (tokens.expires_in * 1000)
+	const expiresAt = Date.now() + (tokens.expires_in as number * 1000)
 	setCookie(event, "spotify_token_expires_at", expiresAt.toString(), {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: tokens.expires_in,
+		maxAge: tokens.expires_in as number,
 	})
 }
 

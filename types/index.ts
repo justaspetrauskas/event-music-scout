@@ -38,6 +38,7 @@ export interface Track {
 export interface EventData {
 	name: string
 	date: string
+	artistQueries: string[]
 	location: string
 	genres: string[]
 	url: string
