@@ -4,7 +4,7 @@ export interface Artist {
 	images: Images[]
 	genres: string[]
 	popularity: number
-	followers: string
+	followers: number
 	image: string
 	spotifyUrl: string
 	tracks: Track[]

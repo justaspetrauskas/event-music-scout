@@ -13,7 +13,7 @@ import { Users, Heart } from "lucide-vue-next"
 
 defineProps<{
 	popularity: number
-	followers: string
+	followers: number
 }>()
 </script>
 

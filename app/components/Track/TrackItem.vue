@@ -50,7 +50,7 @@ const props = defineProps<{
 	track: Track
 }>()
 
-const isPlaying = computed(() => currentTrack.value && currentTrack.value?.id === props.track.id && !isPaused.value)
+const isPlaying = computed<boolean>(() => (currentTrack.value && currentTrack.value?.id === props.track.id) && !isPaused.value)
 
 const trackDuration = computed(() => {
 	return msToMinutesSeconds(+props.track.duration)

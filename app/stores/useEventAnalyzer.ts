@@ -1,10 +1,11 @@
-import type { Artist } from "~~/types"
+import type { Artist, EventData } from "~~/types"
 
 export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 	const isReadingUrl = ref(false)
 	const isSearchingArtists = ref(false)
 	const isFindingTracks = ref(false)
 	const totalArtistsFound = ref(0)
+	const analyzedEventData = ref<EventData | null>(null)
 
 	const loading = ref(false)
 	const error = ref<string | null>(null)
@@ -38,14 +39,14 @@ export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 			)
 
 			eventMeta.artists = [...artistMap.values()]
-			console.log("Event analysis complete:", eventMeta, artistMap)
+			console.log("Event analysis complete:")
 
-			return eventMeta
+			analyzedEventData.value = eventMeta
 		}
 		catch (e) {
 			error.value = e instanceof Error ? e.message : "Failed to analyze event"
 			console.error("Event analysis error:", e)
-			return null
+			analyzedEventData.value = null
 		}
 		finally {
 			loading.value = false
@@ -94,6 +95,7 @@ export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 		isSearchingArtists: readonly(isSearchingArtists),
 		isFindingTracks: readonly(isFindingTracks),
 		totalArtistsFound: readonly(totalArtistsFound),
+		analyzedEventData,
 
 		analyzeEvent,
 		searchArtists,

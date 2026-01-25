@@ -11,7 +11,7 @@
 		<div class="max-w-2xl w-full">
 			<event-input-vue
 				v-model="urlToAnalyze"
-				:data-loaded="eventData !== null"
+				:data-loaded="analyzedEventData !== null"
 				:loading="loading"
 				@analyze="handleAnalyzeEvent"
 			/>
@@ -19,11 +19,11 @@
 		<!-- loading -->
 		<!-- empty state -->
 		<div
-			v-if="eventData"
+			v-if="analyzedEventData"
 			class="max-w-4xl w-full mb-16 mx-auto px-2 sm:px-0"
 		>
 			<EventSummary
-				:event="eventData"
+				:event="analyzedEventData"
 			/>
 
 			<TracksSelectionControl
@@ -35,14 +35,10 @@
 			/>
 
 			<!-- Loader / results count -->
-			<Loader
-				:loading="loading"
-				:count="artistsFound"
-			/>
 
 			<section class="overflow-hidden">
 				<ArtistCard
-					v-for="artist in eventData.artists"
+					v-for="artist in analyzedEventData!.artists"
 					:key="artist.id"
 					:artist="artist"
 					:selected="selectedArtists.has(artist.id)"
@@ -67,13 +63,13 @@ import TracksSelectionControl from "@/components/Track/TracksSelectionControl.vu
 import EventSummary from "@/components/Event/EventSummary.vue"
 import PlaylistFormModal from "@/components/UI/PlaylistFormModal.vue"
 import MusicPlayer from "@/components/MusicPlayer/musicPlayerMain.vue"
+import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
 import Loader from "@/components/UI/Loader.vue"
-import type { EventData } from "~~/types"
 
 import { usePlaylistStore } from "~/stores/playlistStore"
 import { useMusicPlayerStore } from "~/stores/useMusicPlayerStore"
 import { useUserStore } from "~/stores/userStore"
-import ExistingPlaylistForm from "~/components/UI/ExistingPlaylistForm.vue"
+import { useEventAnalyzerStore } from "~/stores/useEventAnalyzer"
 
 const playlistStore = usePlaylistStore()
 const { toggleSelectAll } = usePlaylistStore()
@@ -81,7 +77,10 @@ const userStore = useUserStore()
 const { fetchUserProfile } = userStore
 const { selectedArtists, selectedTracks } = storeToRefs(playlistStore)
 
-const { analyzeEvent, loading } = useEventAnalyzer()
+const eventAnalyzisStore = useEventAnalyzerStore()
+const { analyzeEvent } = eventAnalyzisStore
+const { analyzedEventData, loading } = storeToRefs(eventAnalyzisStore)
+
 const { handleOpenSpotifyOAuthWindow, getAccessToken } = useSpotifyOAuthMethods()
 const { addTracksToQueue, playTrack } = useTrackPlaybackMethods()
 
@@ -92,14 +91,13 @@ const { showPlayer } = musicPlayerStore
 const route = useRoute()
 const router = useRouter()
 
-const eventData = ref<EventData | null>(null)
 const urlToAnalyze = ref<string | null>(route?.query?.q as string || null)
 const isPlaylistFormModalVisible = ref(false)
 const isAddToExistinPlaylistModalVisible = ref(false)
 
 const isUserLoading = ref(false)
 
-const artistsFound = computed(() => eventData.value?.artists?.length ?? 0)
+const artistsFound = computed(() => analyzedEventData.value?.artists?.length ?? 0)
 
 const updateRouteSearchQuery = (query: string) => {
 	router.replace({
@@ -111,7 +109,7 @@ const updateRouteSearchQuery = (query: string) => {
 const handleAnalyzeEvent = async (url: string) => {
 	updateRouteSearchQuery(url)
 
-	eventData.value = await analyzeEvent(url)
+	await analyzeEvent(url)
 }
 
 const handlePlaySelected = async () => {
@@ -123,12 +121,12 @@ const handlePlaySelected = async () => {
 }
 
 const handleCreatePlaylist = async () => {
-	if (!eventData.value || selectedTracks.value.size === 0) return
+	if (!analyzedEventData.value || selectedTracks.value.size === 0) return
 	isPlaylistFormModalVisible.value = true
 }
 
 const handleAddToExistingPlaylist = async () => {
-	if (!eventData.value || selectedTracks.value.size === 0) return
+	if (!analyzedEventData.value || selectedTracks.value.size === 0) return
 	isAddToExistinPlaylistModalVisible.value = true
 }
 
@@ -137,8 +135,8 @@ const onCloseModal = () => {
 }
 
 const handleToggleSelectAll = () => {
-	if (eventData.value === null) return
-	toggleSelectAll(eventData.value)
+	if (analyzedEventData.value === null) return
+	toggleSelectAll(analyzedEventData.value)
 }
 
 const handleClearSelection = () => {
