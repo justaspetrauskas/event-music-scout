@@ -88,6 +88,10 @@ export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 		}
 	}
 
+	const clearAllEventData = () => {
+		analyzedEventData.value = null
+	}
+
 	return {
 		loading,
 		error,
@@ -100,5 +104,6 @@ export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 		analyzeEvent,
 		searchArtists,
 		searchTopTracks,
+		clearAllEventData,
 	}
 })

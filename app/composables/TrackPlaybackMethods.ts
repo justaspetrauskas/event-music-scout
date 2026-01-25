@@ -3,6 +3,8 @@ export const useTrackPlaybackMethods = () => {
 	const { player, currentTrack } = storeToRefs(musicPlayerStore)
 
 	const playTrack = async (trackUri: string[]) => {
+		console.log("plays track on player", player.value?.id)
+		if (!player.value.id) return
 		await $fetch("/api/spotify/player/play-track", {
 			method: "PUT",
 			query: {

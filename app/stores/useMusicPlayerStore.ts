@@ -1,7 +1,6 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import type { Track } from "@@/types"
-import { useSpotifyOAuthMethods } from "@/composables/useSpotifyOAuthMethods"
 
 export interface SpotifyPlayer {
 	player: Spotify.Player | null
@@ -16,7 +15,7 @@ export interface SpotifyPlayer {
 }
 
 export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
-	const { spotify_access_token: accessToken } = useCookie("spotify_access_token")
+	const { value: accessToken } = useCookie("spotify_access_token")
 
 	const player = ref<Spotify.Player | null>(null)
 	const isConnected = ref<boolean>(false)
@@ -28,24 +27,31 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 	const nextTrackInQueue = ref<Track | null>(null)
 	const previousTrackInQueue = ref<Track | null>(null)
 
-	const connectPlayer = async (accessToken: string): Promise<boolean> => {
+	const connectPlayer = async (): Promise<boolean> => {
+		console.log("connect player")
 		if (!import.meta.client || !window.Spotify?.Player) {
 			console.log("Not running in client or Spotify SDK not available")
 			return false
 		}
 
+		// Create player
 		player.value = new window.Spotify.Player({
 			name: "Music Scout Player",
-			getOAuthToken: (cb: (token: string) => void) => cb(accessToken),
+			getOAuthToken: (cb: (token: string) => void) => cb(accessToken as string),
 			volume: 0.5,
 		})
 
-		// Event listeners
-		player.value.addListener("ready", ({ device_id }: { device_id: string }) => {
-			player.value.id = device_id
-			isConnected.value = true
+		// Promise that resolves when READY fires
+		const readyPromise = new Promise<boolean>((resolve) => {
+			player.value!.addListener("ready", ({ device_id }: { device_id: string }) => {
+				player.value!.id = device_id
+				isConnected.value = true
+				console.log("Player READY with device_id:", device_id)
+				resolve(true)
+			})
 		})
 
+		// Other listeners (these don't block)
 		player.value.addListener("not_ready", () => {
 			console.log("Player disconnected")
 			isConnected.value = false
@@ -53,27 +59,38 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 
 		player.value.addListener("authentication_error", ({ message }) => {
 			console.error("Auth error:", message)
+			readyPromise.catch(() => {}) // Ignore ready promise on auth error
 		})
 
 		player.value.addListener("player_state_changed", (state) => {
 			if (!state) {
+				isActive.value = false
 				return
 			}
-
 			currentTrack.value = state.track_window.current_track
 			isPaused.value = state.paused
 			progress.value = state.position
 			nextTrackInQueue.value = state.track_window.next_tracks[0] || null
 			previousTrackInQueue.value = state.track_window.previous_tracks[0] || null
-
-			player.value.getCurrentState().then((state: Spotify.PlaybackState | null) => {
-				console.log("current state", state)
-				isActive.value = !!state
-			})
+			isActive.value = true
 		})
 
-		await player.value.connect()
-		return true
+		// Connect AND wait for ready
+		const connectSuccess = await player.value.connect()
+		if (!connectSuccess) {
+			console.log("Connect failed")
+			return false
+		}
+
+		// NOW wait for ready event
+		const readySuccess = await Promise.race([
+			readyPromise,
+			new Promise<boolean>((_, reject) =>
+				setTimeout(() => reject(new Error("Ready timeout")), 10000),
+			),
+		])
+
+		return readySuccess as boolean
 	}
 
 	const disconnect = () => {
@@ -83,8 +100,12 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 
 	const showPlayer = async () => {
 		if (!isPlayerVisible.value) {
-			await connectPlayer(accessToken)
+			console.log("starts connecting player")
+			const isConnected = await connectPlayer()
+			console.log("finishes connecting player", isConnected)
 			isPlayerVisible.value = true
+
+			return isConnected
 		}
 	}
 	const hidePlayer = () => {
