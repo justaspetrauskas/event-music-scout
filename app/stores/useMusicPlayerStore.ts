@@ -41,28 +41,30 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			volume: 0.5,
 		})
 
-		// Promise that resolves when READY fires
-		const readyPromise = new Promise<boolean>((resolve) => {
-			player.value!.addListener("ready", ({ device_id }: { device_id: string }) => {
-				player.value!.id = device_id
-				isConnected.value = true
-				console.log("Player READY with device_id:", device_id)
-				resolve(true)
-			})
+		// Setup all listeners once
+		setupPlayerListeners()
+
+		// Wait for connect + ready with timeout
+		return await waitForPlayerReady()
+	}
+
+	const setupPlayerListeners = () => {
+		player.value!.addListener("ready", ({ device_id }) => {
+			player.value!.id = device_id
+			isConnected.value = true
+			console.log("Player READY with device_id:", device_id)
 		})
 
-		// Other listeners (these don't block)
-		player.value.addListener("not_ready", () => {
+		player.value!.addListener("not_ready", () => {
 			console.log("Player disconnected")
 			isConnected.value = false
 		})
 
-		player.value.addListener("authentication_error", ({ message }) => {
+		player.value!.addListener("authentication_error", ({ message }) => {
 			console.error("Auth error:", message)
-			readyPromise.catch(() => {}) // Ignore ready promise on auth error
 		})
 
-		player.value.addListener("player_state_changed", (state) => {
+		player.value!.addListener("player_state_changed", (state) => {
 			if (!state) {
 				isActive.value = false
 				return
@@ -74,23 +76,36 @@ export const useMusicPlayerStore = defineStore("musicPlayerStore", () => {
 			previousTrackInQueue.value = state.track_window.previous_tracks[0] || null
 			isActive.value = true
 		})
+	}
 
-		// Connect AND wait for ready
-		const connectSuccess = await player.value.connect()
+	const waitForPlayerReady = async (): Promise<boolean> => {
+		// Wait for connect
+		const connectSuccess = await player.value!.connect()
 		if (!connectSuccess) {
 			console.log("Connect failed")
 			return false
 		}
 
-		// NOW wait for ready event
-		const readySuccess = await Promise.race([
-			readyPromise,
-			new Promise<boolean>((_, reject) =>
-				setTimeout(() => reject(new Error("Ready timeout")), 10000),
-			),
-		])
+		// Wait for ready OR timeout
+		try {
+			await Promise.race([
+				waitForReadyEvent(),
+				new Promise<never>((_, reject) =>
+					setTimeout(() => reject(new Error("Ready timeout")), 10000),
+				),
+			])
+			return true
+		}
+		catch (error) {
+			console.error("Player ready failed:", error)
+			return false
+		}
+	}
 
-		return readySuccess as boolean
+	const waitForReadyEvent = (): Promise<void> => {
+		return new Promise((resolve) => {
+			player.value!.addListener("ready", () => resolve())
+		})
 	}
 
 	const disconnect = () => {
