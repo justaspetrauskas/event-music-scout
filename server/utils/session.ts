@@ -19,7 +19,6 @@ export async function clearSpotifyState(event: H3Event): Promise<void> {
 }
 
 export async function setSpotifyTokens(event: H3Event, tokens: any): Promise<void> {
-	// HttpOnly cookies - safe from XSS
 	setCookie(event, "spotify_access_token", tokens.access_token, {
 		httpOnly: false,
 		secure: process.env.NODE_ENV === "production",
@@ -27,12 +26,11 @@ export async function setSpotifyTokens(event: H3Event, tokens: any): Promise<voi
 		maxAge: tokens.expires_in,
 	})
 
-	// Refresh token has no expiry (permanent until revoked)
 	setCookie(event, "spotify_refresh_token", tokens.refresh_token, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
+		maxAge: 60 * 60 * 24 * 365,
 	})
 
 	const expiresAt = Date.now() + (tokens.expires_in * 1000)
@@ -48,7 +46,7 @@ export function getSpotifyTokens(event: H3Event): { access_token: string | null,
 	return {
 		access_token: getCookie(event, "spotify_access_token") || null,
 		refresh_token: getCookie(event, "spotify_refresh_token") || null,
-		expires_at: parseInt(getCookie(event, "spotify_token_expires_at") || 0),
+		expires_at: parseInt(getCookie(event, "spotify_token_expires_at") as string) || 0,
 	}
 }
 
