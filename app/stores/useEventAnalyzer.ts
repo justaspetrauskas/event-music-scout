@@ -89,12 +89,12 @@ export const useEventAnalyzerStore = defineStore("eventAnalyzer", () => {
 	}
 
 	return {
-		loading: readonly(loading),
-		error: readonly(error),
-		isReadingUrl: readonly(isReadingUrl),
-		isSearchingArtists: readonly(isSearchingArtists),
-		isFindingTracks: readonly(isFindingTracks),
-		totalArtistsFound: readonly(totalArtistsFound),
+		loading,
+		error,
+		isReadingUrl,
+		isSearchingArtists,
+		isFindingTracks,
+		totalArtistsFound,
 		analyzedEventData,
 
 		analyzeEvent,
