@@ -29,16 +29,18 @@
 				<VTooltip
 					:triggers="['hover']"
 					open-delay="0"
-					:shown="previousTrackInQueue"
+					:shown="previousTooltipShown"
 					placement="top-end"
 					:distance="10"
+					@show="activeTooltip = 'prev'"
+					@hide="if (activeTooltip === 'prev') activeTooltip = null"
 				>
 					<button
 						class="p-2 rounded-full transition-colors
-         enabled:hover:bg-gray-100
+					enabled:hover:bg-gray-100
          disabled:bg-transparent disabled:cursor-not-allowed"
 						:disabled="!previousTrackInQueue"
-						@click="handlePreviousTrack"
+						@click.stop="handlePreviousTrack"
 					>
 						<SkipBack
 							class="w-5 h-5"
@@ -60,39 +62,39 @@
 						</div>
 					</template>
 				</VTooltip>
+
 				<button
 					class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all"
 					@click="togglePlay"
 				>
-					<Play
-						v-if="isPaused"
-						class="w-5 h-5"
-					/>
-					<Pause
-						v-else
+					<component
+						:is="isPaused ? Play : Pause"
 						class="w-5 h-5"
 					/>
 				</button>
+
 				<VTooltip
-					:triggers="['hover']"
+					:triggers="['hover focus']"
 					open-delay="0"
-					:shown="nextTrackInQueue"
 					placement="top-start"
+					:shown="nextTooltipShown"
 					:distance="10"
+					@show="activeTooltip = 'next'"
+					@hide="if (activeTooltip === 'next') activeTooltip = null"
 				>
 					<button
 						class="p-2 rounded-full transition-colors
          enabled:hover:bg-gray-100
          disabled:bg-transparent disabled:cursor-not-allowed"
 						:disabled="!nextTrackInQueue"
-						@click="handleNextTrack"
+						@click.stop="handleNextTrack"
 					>
 						<SkipForward
 							class="w-5 h-5"
 							:class="!nextTrackInQueue ? 'text-gray-300' : 'text-gray-700'"
 						/>
 					</button>
-					<template #popper>
+					<template #content>
 						<div class="flex items-start gap-3">
 							<img
 								:src="nextTrackInQueue.album.images[0].url"
@@ -182,6 +184,15 @@ const { nextTrack, previousTrack } = useTrackPlaybackMethods()
 const { connect, togglePlayback, setVolume } = musicPlayerStore
 const { currentTrack, state, isPaused, nextTrackInQueue, previousTrackInQueue } = storeToRefs(musicPlayerStore)
 
+const activeTooltip = ref<"prev" | "next" | null>(null)
+
+const volume = ref(0.5)
+const showQueue = ref(false)
+
+const queue = ref<Track[]>([])
+
+const volumeRef = ref<HTMLInputElement | null>(null)
+
 const parsedTrackInfo = computed(() => {
 	if (!currentTrack.value) return null
 
@@ -190,12 +201,12 @@ const parsedTrackInfo = computed(() => {
 	return { albumCover: cover, name: currentTrack.value.name ?? "", artists }
 })
 
-const volume = ref(0.5)
-const showQueue = ref(false)
-
-const queue = ref<Track[]>([])
-
-const volumeRef = ref<HTMLInputElement | null>(null)
+const previousTooltipShown = computed(() =>
+	previousTrackInQueue.value && activeTooltip.value === "prev",
+)
+const nextTooltipShown = computed(() =>
+	nextTrackInQueue.value && activeTooltip.value === "next",
+)
 
 const togglePlay = () => {
 	togglePlayback()
