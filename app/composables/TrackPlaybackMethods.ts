@@ -48,9 +48,7 @@ export const useTrackPlaybackMethods = () => {
 	const previousTrack = async () => {
 		await $fetch("/api/spotify/player/previous-track", {
 			method: "POST",
-			headers: {
-				Authorization: `Bearer ${existingToken}`,
-			}, query: {
+			query: {
 				device_id: player.value.id,
 			} })
 	}

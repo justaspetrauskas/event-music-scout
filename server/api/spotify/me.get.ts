@@ -9,11 +9,12 @@ export default defineEventHandler(async (event) => {
 	const res = await fetch("https://api.spotify.com/v1/me", {
 		method: "GET",
 		headers: {
-			Authorization: `Bearer ${accessToken}` as string,
+			Authorization: `Bearer ${accessToken}`,
 		},
 	})
 
 	if (!res.ok) {
+		console.log("failed res", res)
 		setResponseStatus(event, res.status)
 		const error = await res.json()
 		return { error }
