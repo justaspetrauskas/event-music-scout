@@ -109,7 +109,7 @@
 						</div>
 					</template>
 				</VTooltip>
-			</div>
+			</div
 
 			<!-- Volume Slider -->
 			<div class="flex items-center gap-2 w-20">
